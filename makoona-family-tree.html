@@ -54,7 +54,7 @@ textarea{resize:vertical;min-height:72px}
 
 /* TREE */
 .tree-wrap{flex:1;overflow:hidden;position:relative;background:var(--cream);background-image:radial-gradient(circle,#d4b89660 1px,transparent 1px);background-size:22px 22px}
-#svg{position:absolute;top:0;left:0;cursor:grab;user-select:none;-webkit-user-select:none}
+#svg{position:absolute;top:0;left:0;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}
 #svg:active{cursor:grabbing}
 
 /* ZOOM */
@@ -1019,7 +1019,7 @@ function initPanZoom() {
     applyXform();
   }, { passive: false });
 
-  // Touch
+  // Touch — listeners on document so fast swipes don't lose tracking
   svg.addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
       dragging = true; pinching = false;
@@ -1029,9 +1029,10 @@ function initPanZoom() {
       pinching = true; dragging = false;
       lastDist = touchDist(e.touches);
     }
-  }, { passive: true });
+  }, { passive: false });
 
-  svg.addEventListener('touchmove', e => {
+  document.addEventListener('touchmove', e => {
+    if (!dragging && !pinching) return;
     e.preventDefault();
     if (e.touches.length === 1 && dragging) {
       vp.x = stx + e.touches[0].clientX - sx;
@@ -1046,7 +1047,8 @@ function initPanZoom() {
     }
   }, { passive: false });
 
-  svg.addEventListener('touchend', () => { dragging = false; pinching = false; });
+  document.addEventListener('touchend',    () => { dragging = false; pinching = false; });
+  document.addEventListener('touchcancel', () => { dragging = false; pinching = false; });
 }
 
 function touchDist(t) {
