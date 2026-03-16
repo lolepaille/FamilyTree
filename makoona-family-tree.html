@@ -91,6 +91,16 @@ textarea{resize:vertical;min-height:72px}
 .mode-tab-off{background:var(--warm-white);color:var(--mid)}
 .mode-tab-off:hover{background:var(--cream)}
 
+/* CHECKLIST (manage children) */
+.chk-list{max-height:300px;overflow-y:auto;border:2px solid var(--border);border-radius:8px;margin-bottom:18px}
+.chk-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.chk-item:last-child{border-bottom:none}
+.chk-item:hover{background:var(--cream)}
+.chk-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--soft-green);cursor:pointer;flex-shrink:0}
+.chk-item label{font-size:13px;color:var(--dark);cursor:pointer;flex:1}
+.chk-item.already{opacity:.45;pointer-events:none}
+.chk-empty{padding:14px;text-align:center;font-size:13px;color:var(--mid)}
+
 /* TOAST */
 .toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1}
@@ -258,6 +268,19 @@ textarea{resize:vertical;min-height:72px}
   </div>
 </div>
 
+<!-- ═══ MANAGE CHILDREN MODAL ═══ -->
+<div id="mcOverlay" class="overlay" style="display:none" onclick="if(event.target===this)closeMC()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="mcTitle"></h3>
+    <p style="font-size:13px;color:var(--mid);margin-bottom:14px" id="mcSubtitle"></p>
+    <div id="mcList" class="chk-list"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeMC()" data-i18n="btnCancel">Cancel</button>
+      <button class="btn btn-primary" id="btnCommitMC" onclick="commitMC()">Link Selected</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast" class="toast"></div>
 
@@ -316,6 +339,12 @@ const T = {
     phFullName:'Full name', phEmailField:'email@example.com',
     phBirthYear:'e.g. 1985', phNotes:'Any additional notes…',
     saving:'Saving…',
+    btnManageChildren:'👶 Manage Children',
+    mcTitle:(n)=>`Children of ${n}`,
+    mcSubtitle:'Tick everyone who should be a child of this person. Already-linked children are shown greyed out.',
+    btnLinkSelected:'Link Selected',
+    toastMCNone:'Select at least one person',
+    toastMCDone:(n)=>`✓ ${n} child${n===1?'':'ren'} linked`,
   },
   fr: {
     landingTitle:'Arbre Généalogique Makoona',
@@ -367,6 +396,12 @@ const T = {
     phFullName:'Nom complet', phEmailField:'email@exemple.com',
     phBirthYear:'ex. 1985', phNotes:'Notes supplémentaires…',
     saving:'Enregistrement…',
+    btnManageChildren:'👶 Gérer les Enfants',
+    mcTitle:(n)=>`Enfants de ${n}`,
+    mcSubtitle:'Cochez les personnes qui doivent être enfants de cette personne. Les enfants déjà liés apparaissent grisés.',
+    btnLinkSelected:'Lier la Sélection',
+    toastMCNone:'Sélectionnez au moins une personne',
+    toastMCDone:(n)=>`✓ ${n} enfant${n===1?'':'s'} lié${n===1?'':'s'}`,
   },
 };
 
@@ -1170,6 +1205,7 @@ function openDetail(id) {
       <button class="btn btn-secondary" onclick="closeDetail()">${ft.btnClose}</button>
       <button class="btn btn-secondary" onclick="closeDetail();openEdit('${id}')">${ft.btnEdit}</button>
       ${isRoot ? '' : `<button class="btn btn-secondary" style="color:#c0392b;border-color:#c0392b" onclick="confirmDelete('${id}')">${ft.btnDelete}</button>`}
+      <button class="btn btn-secondary" onclick="closeDetail();openMC('${id}')">${ft.btnManageChildren}</button>
       <button class="btn btn-primary" onclick="closeDetail();openAdd('${id}')">${ft.btnAddRelative}</button>`;
   } else {
     foot.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="closeDetail()">${T[lang].btnClose}</button>`;
@@ -1385,6 +1421,79 @@ function getSpousesOf(id) {
   return data.relationships
     .filter(r => r.type==='spouse' && (r.fromId===id || r.toId===id))
     .map(r => r.fromId===id ? r.toId : r.fromId);
+}
+
+// ──────────────────────────────────────────────────────
+// MANAGE CHILDREN MODAL
+// ──────────────────────────────────────────────────────
+let mcParentId = null;
+
+function openMC(parentId) {
+  if (sess.readOnly) { toast(T[lang].toastSignInAdd); return; }
+  mcParentId = parentId;
+  const parent = data.people.find(p => p.id === parentId);
+  const t = T[lang];
+
+  document.getElementById('mcTitle').textContent    = t.mcTitle(parent ? parent.name : '');
+  document.getElementById('mcSubtitle').textContent = t.mcSubtitle;
+  document.getElementById('btnCommitMC').textContent = t.btnLinkSelected;
+
+  // Current children of this parent
+  const currentChildren = new Set(
+    data.relationships
+      .filter(r => r.type === 'child' && r.fromId === parentId)
+      .map(r => r.toId)
+  );
+
+  // Build checklist: everyone except this parent, sorted by name
+  const people = data.people
+    .filter(p => p.id !== parentId)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const list = document.getElementById('mcList');
+  list.innerHTML = '';
+
+  if (people.length === 0) {
+    list.innerHTML = `<div class="chk-empty">${t.noEligible}</div>`;
+  } else {
+    for (const p of people) {
+      const already = currentChildren.has(p.id);
+      const item = document.createElement('div');
+      item.className = 'chk-item' + (already ? ' already' : '');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.id = 'mc_' + p.id; cb.value = p.id;
+      cb.checked = already; cb.disabled = already;
+      const lbl = document.createElement('label');
+      lbl.htmlFor = 'mc_' + p.id; lbl.textContent = p.name;
+      item.appendChild(cb); item.appendChild(lbl);
+      if (!already) item.addEventListener('click', e => {
+        if (e.target !== cb) cb.checked = !cb.checked;
+      });
+      list.appendChild(item);
+    }
+  }
+
+  document.getElementById('mcOverlay').style.display = 'flex';
+}
+
+function closeMC() { document.getElementById('mcOverlay').style.display = 'none'; }
+
+async function commitMC() {
+  const checked = [...document.querySelectorAll('#mcList input[type=checkbox]:not(:disabled):checked')]
+    .map(cb => cb.value);
+  if (checked.length === 0) { toast(T[lang].toastMCNone); return; }
+
+  for (const childId of checked) {
+    data.relationships.push({ fromId: mcParentId, toId: childId, type: 'child' });
+  }
+  dedupeRelationships();
+
+  setSaving(true, 'btnCommitMC');
+  await save();
+  setSaving(false, 'btnCommitMC');
+  closeMC();
+  resetView();
+  toast(T[lang].toastMCDone(checked.length));
 }
 
 async function commitAdd() {
