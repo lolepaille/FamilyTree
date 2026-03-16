@@ -978,9 +978,11 @@ function openDetail(id) {
 
   const foot = document.getElementById('detailFoot');
   if (!sess.readOnly) {
+    const isRoot = id === ROOT_ID;
     foot.innerHTML = `
       <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
       <button class="btn btn-secondary" onclick="closeDetail();openEdit('${id}')">✏️ Edit</button>
+      ${isRoot ? '' : `<button class="btn btn-secondary" style="color:#c0392b;border-color:#c0392b" onclick="confirmDelete('${id}')">🗑 Delete</button>`}
       <button class="btn btn-primary" onclick="closeDetail();openAdd('${id}')">+ Add Relative</button>`;
   } else {
     foot.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="closeDetail()">Close</button>`;
@@ -990,6 +992,32 @@ function openDetail(id) {
 }
 
 function closeDetail() { document.getElementById('detailOverlay').style.display = 'none'; }
+
+// ──────────────────────────────────────────────────────
+// DELETE
+// ──────────────────────────────────────────────────────
+function confirmDelete(id) {
+  const p = data.people.find(x => x.id === id);
+  if (!p) return;
+  closeDetail();
+
+  // Count relationships that will also be removed
+  const relCount = data.relationships.filter(r => r.fromId === id || r.toId === id).length;
+  const relNote  = relCount ? ` This will also remove ${relCount} relationship${relCount > 1 ? 's' : ''}.` : '';
+
+  if (!confirm(`Delete "${p.name}" from the family tree?${relNote}\n\nThis cannot be undone.`)) return;
+  deletePerson(id);
+}
+
+async function deletePerson(id) {
+  data.people        = data.people.filter(p => p.id !== id);
+  data.relationships = data.relationships.filter(r => r.fromId !== id && r.toId !== id);
+  sess.added         = sess.added.filter(x => x !== id);
+
+  await save();
+  render();
+  toast('Entry deleted');
+}
 
 // ──────────────────────────────────────────────────────
 // EDIT MODAL

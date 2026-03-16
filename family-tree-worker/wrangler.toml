@@ -3,6 +3,8 @@ main = "src/index.js"
 compatibility_date = "2024-01-01"
 account_id = "16576bcaab25cadc2135a86061dc3596"
 
+workers_dev = true
+
 [[d1_databases]]
 binding = "DB"
 database_name = "family-tree-db"
