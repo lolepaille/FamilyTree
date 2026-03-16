@@ -113,18 +113,18 @@ textarea{resize:vertical;min-height:72px}
 <div id="landing">
   <div class="card">
     <span class="icon">🌳</span>
-    <h1>Makoona Family Tree</h1>
-    <p class="sub">Explore our growing family history. Enter your name to contribute, or browse as a guest.</p>
+    <h1 data-i18n="landingTitle">Makoona Family Tree</h1>
+    <p class="sub" data-i18n="landingSub">Explore our growing family history. Enter your name to contribute, or browse as a guest.</p>
     <div class="fg">
-      <label for="vname">Your Name <span style="font-weight:400;color:var(--warm-tan)">(optional — needed to add members)</span></label>
-      <input type="text" id="vname" placeholder="e.g. Jane Makoona" autocomplete="name">
+      <label for="vname"><span data-i18n="labelName">Your Name</span> <span data-i18n="labelNameHint" style="font-weight:400;color:var(--warm-tan)">(optional — needed to add members)</span></label>
+      <input type="text" id="vname" data-i18n-placeholder="phName" placeholder="e.g. Jane Makoona" autocomplete="name">
     </div>
     <div class="fg">
-      <label for="vemail">Your Email <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-      <input type="email" id="vemail" placeholder="jane@example.com" autocomplete="email">
+      <label for="vemail"><span data-i18n="labelEmail">Your Email</span> <span data-i18n="labelEmailHint" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <input type="email" id="vemail" data-i18n-placeholder="phEmail" placeholder="jane@example.com" autocomplete="email">
     </div>
-    <button class="btn btn-primary" onclick="enterApp(false)">View Family Tree →</button>
-    <div class="skip"><a onclick="enterApp(true)">Browse as guest (read-only)</a></div>
+    <button class="btn btn-primary" onclick="enterApp(false)" data-i18n="btnViewTree">View Family Tree →</button>
+    <div class="skip"><a onclick="enterApp(true)" data-i18n="linkGuest">Browse as guest (read-only)</a></div>
   </div>
 </div>
 
@@ -134,7 +134,8 @@ textarea{resize:vertical;min-height:72px}
     <div class="hdr-title">🌳 Makoona Family Tree</div>
     <div class="hdr-right">
       <div id="userbadge"></div>
-      <button class="icon-btn" onclick="resetView()">⊙ Reset View</button>
+      <button class="icon-btn" id="langBtn" onclick="toggleLang()">🇫🇷 FR</button>
+      <button class="icon-btn" onclick="resetView()" data-i18n="btnResetView">⊙ Reset View</button>
     </div>
   </div>
   <div class="tree-wrap" id="wrap">
@@ -145,9 +146,9 @@ textarea{resize:vertical;min-height:72px}
       <button class="zoom-btn" onclick="resetView()" title="Fit view" style="font-size:13px">⊙</button>
     </div>
     <div class="legend">
-      <div class="li"><div class="ld" style="background:var(--soft-green)"></div> Root family</div>
-      <div class="li"><div class="ld" style="background:var(--session)"></div> Added this session</div>
-      <div class="li"><div class="ld" style="background:var(--warm-tan)"></div> Other members</div>
+      <div class="li"><div class="ld" style="background:var(--soft-green)"></div><span data-i18n="legendRoot"> Root family</span></div>
+      <div class="li"><div class="ld" style="background:var(--session)"></div><span data-i18n="legendSession"> Added this session</span></div>
+      <div class="li"><div class="ld" style="background:var(--warm-tan)"></div><span data-i18n="legendOther"> Other members</span></div>
     </div>
   </div>
 </div>
@@ -164,29 +165,29 @@ textarea{resize:vertical;min-height:72px}
 <!-- ═══ ADD MODAL ═══ -->
 <div id="addOverlay" class="overlay" style="display:none" onclick="if(event.target===this)closeAdd()">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3>Add a Family Member</h3>
+    <h3 data-i18n="addModalTitle">Add a Family Member</h3>
     <div class="fg">
-      <label>Relationship to <strong id="addToName"></strong>:</label>
+      <label><span data-i18n="relTo">Relationship to</span> <strong id="addToName"></strong>:</label>
       <div class="rel-grid">
-        <div class="rel-btn" id="rb-parent"  onclick="pickRel('parent',this)">👴 Parent</div>
-        <div class="rel-btn" id="rb-child"   onclick="pickRel('child',this)">👶 Child</div>
-        <div class="rel-btn" id="rb-sibling" onclick="pickRel('sibling',this)">👫 Sibling</div>
-        <div class="rel-btn" id="rb-spouse"  onclick="pickRel('spouse',this)">💑 Spouse / Partner</div>
+        <div class="rel-btn" id="rb-parent"  onclick="pickRel('parent',this)"  data-i18n="relParent">👴 Parent</div>
+        <div class="rel-btn" id="rb-child"   onclick="pickRel('child',this)"   data-i18n="relChild">👶 Child</div>
+        <div class="rel-btn" id="rb-sibling" onclick="pickRel('sibling',this)" data-i18n="relSibling">👫 Sibling</div>
+        <div class="rel-btn" id="rb-spouse"  onclick="pickRel('spouse',this)"  data-i18n="relSpouse">💑 Spouse / Partner</div>
       </div>
     </div>
 
     <!-- Mode toggle: only shown after a rel type is picked -->
     <div id="addModeFg" style="display:none;margin-bottom:18px">
       <div style="display:flex;gap:0;border:2px solid var(--border);border-radius:8px;overflow:hidden">
-        <button id="modeNewBtn"      class="mode-tab mode-tab-on"  onclick="setAddMode('new')">+ New Person</button>
-        <button id="modeLinkBtn"     class="mode-tab mode-tab-off" onclick="setAddMode('link')">🔗 Link Existing</button>
+        <button id="modeNewBtn"  class="mode-tab mode-tab-on"  onclick="setAddMode('new')"  data-i18n="modeNew">+ New Person</button>
+        <button id="modeLinkBtn" class="mode-tab mode-tab-off" onclick="setAddMode('link')" data-i18n="modeLink">🔗 Link Existing</button>
       </div>
     </div>
 
     <!-- Link-existing picker -->
     <div id="linkExistingFg" style="display:none">
       <div class="fg">
-        <label for="linkSelect">Select person from tree *</label>
+        <label for="linkSelect" data-i18n="labelLinkSelect">Select person from tree *</label>
         <select id="linkSelect"><option value="">— Choose —</option></select>
       </div>
     </div>
@@ -194,30 +195,30 @@ textarea{resize:vertical;min-height:72px}
     <!-- New-person fields -->
     <div id="newPersonFields">
       <div class="fg" id="secondParentFg" style="display:none">
-        <label for="secondParent">Second Parent <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <label for="secondParent"><span data-i18n="labelSecondParent">Second Parent</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
         <select id="secondParent"><option value="">— None —</option></select>
       </div>
       <div class="fg">
-        <label for="newName">Full Name *</label>
-        <input type="text" id="newName" placeholder="Full name">
+        <label for="newName" data-i18n="labelFullName">Full Name *</label>
+        <input type="text" id="newName" data-i18n-placeholder="phFullName" placeholder="Full name">
       </div>
       <div class="fg">
-        <label for="newEmail">Email <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-        <input type="email" id="newEmail" placeholder="email@example.com">
+        <label for="newEmail"><span data-i18n="labelEmailField">Email</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <input type="email" id="newEmail" data-i18n-placeholder="phEmailField" placeholder="email@example.com">
       </div>
       <div class="fg">
-        <label for="newYear">Birth Year <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-        <input type="number" id="newYear" placeholder="e.g. 1985" min="1800" max="2026">
+        <label for="newYear"><span data-i18n="labelBirthYear">Birth Year</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <input type="number" id="newYear" data-i18n-placeholder="phBirthYear" placeholder="e.g. 1985" min="1800" max="2026">
       </div>
       <div class="fg">
-        <label for="newNotes">Notes <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-        <textarea id="newNotes" placeholder="Any additional notes…"></textarea>
+        <label for="newNotes"><span data-i18n="labelNotes">Notes</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <textarea id="newNotes" data-i18n-placeholder="phNotes" placeholder="Any additional notes…"></textarea>
       </div>
     </div>
 
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeAdd()">Cancel</button>
-      <button class="btn btn-primary" onclick="commitAdd()">Add to Tree</button>
+      <button class="btn btn-secondary" onclick="closeAdd()" data-i18n="btnCancel">Cancel</button>
+      <button class="btn btn-primary" onclick="commitAdd()" data-i18n="btnAddToTree">Add to Tree</button>
     </div>
   </div>
 </div>
@@ -225,26 +226,26 @@ textarea{resize:vertical;min-height:72px}
 <!-- ═══ EDIT MODAL ═══ -->
 <div id="editOverlay" class="overlay" style="display:none" onclick="if(event.target===this)closeEdit()">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3>Edit Family Member</h3>
+    <h3 data-i18n="editModalTitle">Edit Family Member</h3>
     <div class="fg">
-      <label for="editName">Full Name *</label>
-      <input type="text" id="editName" placeholder="Full name">
+      <label for="editName" data-i18n="labelFullName">Full Name *</label>
+      <input type="text" id="editName" data-i18n-placeholder="phFullName" placeholder="Full name">
     </div>
     <div class="fg">
-      <label for="editEmail">Email <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-      <input type="email" id="editEmail" placeholder="email@example.com">
+      <label for="editEmail"><span data-i18n="labelEmailField">Email</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <input type="email" id="editEmail" data-i18n-placeholder="phEmailField" placeholder="email@example.com">
     </div>
     <div class="fg">
-      <label for="editYear">Birth Year <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-      <input type="number" id="editYear" placeholder="e.g. 1985" min="1800" max="2026">
+      <label for="editYear"><span data-i18n="labelBirthYear">Birth Year</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <input type="number" id="editYear" data-i18n-placeholder="phBirthYear" placeholder="e.g. 1985" min="1800" max="2026">
     </div>
     <div class="fg">
-      <label for="editNotes">Notes <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
-      <textarea id="editNotes" placeholder="Any additional notes…"></textarea>
+      <label for="editNotes"><span data-i18n="labelNotes">Notes</span> <span data-i18n="labelOptional" style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <textarea id="editNotes" data-i18n-placeholder="phNotes" placeholder="Any additional notes…"></textarea>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
-      <button class="btn btn-primary" onclick="commitEdit()">Save Changes</button>
+      <button class="btn btn-secondary" onclick="closeEdit()" data-i18n="btnCancel">Cancel</button>
+      <button class="btn btn-primary" onclick="commitEdit()" data-i18n="btnSaveChanges">Save Changes</button>
     </div>
   </div>
 </div>
@@ -253,6 +254,112 @@ textarea{resize:vertical;min-height:72px}
 <div id="toast" class="toast"></div>
 
 <script>
+// ──────────────────────────────────────────────────────
+// TRANSLATIONS
+// ──────────────────────────────────────────────────────
+const T = {
+  en: {
+    landingTitle:'Makoona Family Tree',
+    landingSub:'Explore our growing family history. Enter your name to contribute, or browse as a guest.',
+    labelName:'Your Name', labelNameHint:'(optional — needed to add members)',
+    labelEmail:'Your Email', labelEmailHint:'(optional)',
+    btnViewTree:'View Family Tree →', linkGuest:'Browse as guest (read-only)',
+    btnResetView:'⊙ Reset View',
+    badgeGuest:'👁 Guest (read-only)',
+    legendRoot:' Root family', legendSession:' Added this session', legendOther:' Other members',
+    addModalTitle:'Add a Family Member', relTo:'Relationship to',
+    relParent:'👴 Parent', relChild:'👶 Child', relSibling:'👫 Sibling', relSpouse:'💑 Spouse / Partner',
+    modeNew:'+ New Person', modeLink:'🔗 Link Existing',
+    labelLinkSelect:'Select person from tree *',
+    labelSecondParent:'Second Parent', labelFullName:'Full Name *',
+    labelEmailField:'Email', labelBirthYear:'Birth Year', labelNotes:'Notes',
+    labelOptional:'(optional)', optNone:'— None —', optChoose:'— Choose —',
+    btnCancel:'Cancel', btnAddToTree:'Add to Tree',
+    editModalTitle:'Edit Family Member', btnSaveChanges:'Save Changes',
+    dlRole:'Role', dlBirthYear:'Birth Year', dlEmail:'Email', dlNotes:'Notes',
+    dlConnections:'Family Connections', dlAddedBy:'Added by', dlLastEdited:'Last edited by',
+    foundingRecord:'Founding record',
+    btnClose:'Close', btnEdit:'✏️ Edit', btnDelete:'🗑 Delete', btnAddRelative:'+ Add Relative',
+    missingParentMsg:'Only one parent is recorded. <strong>Link a second parent</strong> by clicking <em>Add Relative → Parent</em> on this person, or use <em>Link Existing</em>.',
+    connParentOf:(n)=>`Parent of ${n}`, connChildOf:(n)=>`Child of ${n}`,
+    connSpouseOf:(n)=>`Spouse/Partner of ${n}`, connSiblingOf:(n)=>`Sibling of ${n}`,
+    grpSpouse:'Spouse / Partner', grpOtherFamily:'Other family members',
+    grpSpouseChildren:"Spouse's children (suggested)", grpAllOther:'All other members',
+    noEligible:'No eligible people found',
+    nodeBirth:'b.',
+    rlRoot:'★ Root', rlSpousePartner:'Spouse/Partner', rlSibling:'Sibling',
+    rlParent:'Parent', rlChild:'Child', rlGrandparent:'Grandparent',
+    rlRelative:'Relative', rlDescendant:'Descendant',
+    toastSyncFail:'⚠️ Could not sync to server', toastDeleted:'Entry deleted',
+    toastSignInEdit:'Sign in with a name to edit entries',
+    toastUpdated:(n)=>`✓ ${n} updated`,
+    toastSignInAdd:'Sign in with a name to add family members',
+    toastSelectRel:'Please select a relationship type',
+    toastNoPerson:'No reference person selected',
+    toastSelectPerson:'Please select a person to link',
+    toastLinked:(n)=>`✓ ${n} linked to the tree!`,
+    toastEnterName:'Please enter a full name',
+    toastDuplicate:'This person already has that relationship here',
+    toastAdded:(n)=>`✓ ${n} added to the family tree!`,
+    toastNameEmpty:'Name cannot be empty',
+    confirmDelete:(name,note)=>`Delete "${name}" from the family tree?${note}\n\nThis cannot be undone.`,
+    confirmRelNote:(c)=>` This will also remove ${c} relationship${c>1?'s':''}.`,
+    phName:'e.g. Jane Makoona', phEmail:'jane@example.com',
+    phFullName:'Full name', phEmailField:'email@example.com',
+    phBirthYear:'e.g. 1985', phNotes:'Any additional notes…',
+  },
+  fr: {
+    landingTitle:'Arbre Généalogique Makoona',
+    landingSub:"Explorez notre histoire familiale. Entrez votre nom pour contribuer, ou parcourez en tant qu'invité.",
+    labelName:'Votre Nom', labelNameHint:'(optionnel — requis pour ajouter des membres)',
+    labelEmail:'Votre Email', labelEmailHint:'(optionnel)',
+    btnViewTree:"Voir l'Arbre →", linkGuest:'Parcourir en tant qu\'invité (lecture seule)',
+    btnResetView:'⊙ Réinitialiser',
+    badgeGuest:'👁 Invité (lecture seule)',
+    legendRoot:' Famille racine', legendSession:' Ajouté cette session', legendOther:' Autres membres',
+    addModalTitle:'Ajouter un Membre', relTo:'Relation avec',
+    relParent:'👴 Parent', relChild:'👶 Enfant', relSibling:'👫 Frère / Sœur', relSpouse:'💑 Conjoint / Partenaire',
+    modeNew:'+ Nouvelle Personne', modeLink:'🔗 Lier Existant',
+    labelLinkSelect:'Choisir une personne *',
+    labelSecondParent:'Deuxième Parent', labelFullName:'Nom Complet *',
+    labelEmailField:'Email', labelBirthYear:'Année de Naissance', labelNotes:'Notes',
+    labelOptional:'(optionnel)', optNone:'— Aucun —', optChoose:'— Choisir —',
+    btnCancel:'Annuler', btnAddToTree:"Ajouter à l'Arbre",
+    editModalTitle:'Modifier le Membre', btnSaveChanges:'Enregistrer',
+    dlRole:'Rôle', dlBirthYear:'Année de Naissance', dlEmail:'Email', dlNotes:'Notes',
+    dlConnections:'Liens Familiaux', dlAddedBy:'Ajouté par', dlLastEdited:'Dernière modification par',
+    foundingRecord:'Membre fondateur',
+    btnClose:'Fermer', btnEdit:'✏️ Modifier', btnDelete:'🗑 Supprimer', btnAddRelative:'+ Ajouter un Proche',
+    missingParentMsg:'Un seul parent est enregistré. <strong>Liez un deuxième parent</strong> en cliquant sur <em>Ajouter un Proche → Parent</em>, ou utilisez <em>Lier Existant</em>.',
+    connParentOf:(n)=>`Parent de ${n}`, connChildOf:(n)=>`Enfant de ${n}`,
+    connSpouseOf:(n)=>`Conjoint(e) de ${n}`, connSiblingOf:(n)=>`Frère/Sœur de ${n}`,
+    grpSpouse:'Conjoint / Partenaire', grpOtherFamily:'Autres membres de la famille',
+    grpSpouseChildren:'Enfants du conjoint (suggérés)', grpAllOther:'Tous les autres membres',
+    noEligible:'Aucune personne éligible trouvée',
+    nodeBirth:'n.',
+    rlRoot:'★ Racine', rlSpousePartner:'Conjoint/Partenaire', rlSibling:'Frère/Sœur',
+    rlParent:'Parent', rlChild:'Enfant', rlGrandparent:'Grand-parent',
+    rlRelative:'Proche', rlDescendant:'Descendant',
+    toastSyncFail:'⚠️ Synchronisation impossible', toastDeleted:'Entrée supprimée',
+    toastSignInEdit:'Connectez-vous pour modifier les entrées',
+    toastUpdated:(n)=>`✓ ${n} mis à jour`,
+    toastSignInAdd:'Connectez-vous pour ajouter des membres',
+    toastSelectRel:'Veuillez sélectionner un type de relation',
+    toastNoPerson:'Aucune personne de référence sélectionnée',
+    toastSelectPerson:'Veuillez sélectionner une personne à lier',
+    toastLinked:(n)=>`✓ ${n} lié à l'arbre !`,
+    toastEnterName:'Veuillez entrer un nom complet',
+    toastDuplicate:'Cette relation existe déjà',
+    toastAdded:(n)=>`✓ ${n} ajouté à l'arbre généalogique !`,
+    toastNameEmpty:'Le nom ne peut pas être vide',
+    confirmDelete:(name,note)=>`Supprimer "${name}" de l'arbre généalogique ?${note}\n\nCette action est irréversible.`,
+    confirmRelNote:(c)=>` Cela supprimera aussi ${c} relation${c>1?'s':''}.`,
+    phName:'ex. Jean Makoona', phEmail:'jean@exemple.com',
+    phFullName:'Nom complet', phEmailField:'email@exemple.com',
+    phBirthYear:'ex. 1985', phNotes:'Notes supplémentaires…',
+  },
+};
+
 // ──────────────────────────────────────────────────────
 // CONSTANTS & DEFAULTS
 // ──────────────────────────────────────────────────────
@@ -290,6 +397,29 @@ let data = { people: [], relationships: [] };
 let sess = { name: '', email: '', readOnly: true, added: [] };
 let vp   = { x: 0, y: 0, scale: 1, initialised: false };
 let ui   = { relType: null, addToId: null, editId: null, addMode: 'new' };
+let lang = localStorage.getItem('fam_lang') || 'en';
+
+function toggleLang() { setLang(lang === 'en' ? 'fr' : 'en'); }
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('fam_lang', l);
+  applyLang();
+  render(); // re-render nodes so rel labels update
+}
+function applyLang() {
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  const lb = document.getElementById('langBtn');
+  if (lb) lb.textContent = lang === 'en' ? '🇫🇷 FR' : '🇬🇧 EN';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (k in t) el.textContent = t[k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.getAttribute('data-i18n-placeholder');
+    if (k in t) el.placeholder = t[k];
+  });
+}
 
 // ──────────────────────────────────────────────────────
 // STORAGE  — Cloudflare D1 via Worker API
@@ -319,7 +449,7 @@ async function save() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-  } catch(_) { toast('⚠️ Could not sync to server'); }
+  } catch(_) { toast(T[lang].toastSyncFail); }
   // Always keep a local cache too
   try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(_) {}
 }
@@ -335,8 +465,9 @@ function enterApp(forceGuest) {
 
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+  applyLang();
   document.getElementById('userbadge').innerHTML = sess.readOnly
-    ? '<span class="badge badge-tan">👁 Guest (read-only)</span>'
+    ? `<span class="badge badge-tan">${T[lang].badgeGuest}</span>`
     : `<span class="badge badge-green">✓ ${esc(sess.name)}</span>`;
 
   render(); // show skeleton immediately
@@ -555,7 +686,8 @@ function assignClusterPos(clusters, y, pos) {
 // RELATIONSHIP LABELS
 // ──────────────────────────────────────────────────────
 function relLabel(id) {
-  if (id === ROOT_ID) return '★ Root';
+  const t = T[lang];
+  if (id === ROOT_ID) return t.rlRoot;
   const gens = computeGens();
   const g = gens[id] ?? 0;
 
@@ -563,22 +695,22 @@ function relLabel(id) {
   for (const r of data.relationships) {
     if (r.type === 'spouse' && (r.fromId === id || r.toId === id)) {
       const oid = r.fromId === id ? r.toId : r.fromId;
-      if (oid === ROOT_ID) return 'Spouse/Partner';
+      if (oid === ROOT_ID) return t.rlSpousePartner;
     }
     if (r.type === 'sibling' && (r.fromId === id || r.toId === id)) {
       const oid = r.fromId === id ? r.toId : r.fromId;
-      if (oid === ROOT_ID) return 'Sibling';
+      if (oid === ROOT_ID) return t.rlSibling;
     }
     if (r.type === 'child') {
-      if (r.fromId === id && r.toId === ROOT_ID) return 'Parent';
-      if (r.toId === id && r.fromId === ROOT_ID) return 'Child';
+      if (r.fromId === id && r.toId === ROOT_ID) return t.rlParent;
+      if (r.toId === id && r.fromId === ROOT_ID) return t.rlChild;
     }
   }
-  if (g <= -2) return 'Grandparent';
-  if (g === -1) return 'Parent';
-  if (g === 0)  return 'Relative';
-  if (g === 1)  return 'Child';
-  return 'Descendant';
+  if (g <= -2) return t.rlGrandparent;
+  if (g === -1) return t.rlParent;
+  if (g === 0)  return t.rlRelative;
+  if (g === 1)  return t.rlChild;
+  return t.rlDescendant;
 }
 
 // ──────────────────────────────────────────────────────
@@ -818,7 +950,7 @@ function drawNode(parent, p, pos, gen) {
   if (p.birthYear) {
     const by = el('text', { x: NW/2, y: 57, 'text-anchor':'middle', 'font-size':'10',
       fill:'#8B6E52', 'font-family':'system-ui,sans-serif' });
-    by.textContent = `b. ${p.birthYear}`;
+    by.textContent = `${T[lang].nodeBirth} ${p.birthYear}`;
     g.appendChild(by);
   }
 
@@ -955,37 +1087,40 @@ function openDetail(id) {
     else continue;
     const op = data.people.find(x => x.id === oid);
     if (!op) continue;
+    const t = T[lang];
     if (r.type === 'child') {
-      label = r.fromId === id ? `Parent of ${op.name}` : `Child of ${op.name}`;
+      label = r.fromId === id ? t.connParentOf(op.name) : t.connChildOf(op.name);
     } else if (r.type === 'spouse') {
-      label = `Spouse/Partner of ${op.name}`;
+      label = t.connSpouseOf(op.name);
     } else if (r.type === 'sibling') {
-      label = `Sibling of ${op.name}`;
+      label = t.connSiblingOf(op.name);
     }
     conns.push(label);
   }
 
-  let html = `<div class="df"><div class="dl">Role</div><div class="dv">${esc(relLabel(id))}</div></div>`;
-  if (p.birthYear) html += `<div class="df"><div class="dl">Birth Year</div><div class="dv">${p.birthYear}</div></div>`;
-  if (p.email) html += `<div class="df"><div class="dl">Email</div><div class="dv">${esc(p.email)}</div></div>`;
-  if (p.notes) html += `<div class="df"><div class="dl">Notes</div><div class="dv">${esc(p.notes)}</div></div>`;
-  if (conns.length) html += `<div class="df"><div class="dl">Family Connections</div><div class="dv">${conns.map(c=>`<span class="rel-chip">${esc(c)}</span>`).join('')}</div></div>`;
-  if (missingParent(id)) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px"><span style="font-size:16px">⚠️</span><span>Only one parent is recorded. <strong>Link a second parent</strong> by clicking <em>Add Relative → Parent</em> on this person, or use <em>Link Existing</em>.</span></div>`;
-  html += `<div class="df"><div class="dl">Added by</div><div class="dv">${p.addedBy === 'system' ? 'Founding record' : esc(p.addedBy)} · ${fmtDate(p.addedAt)}</div></div>`;
-  if (p.editedBy) html += `<div class="df"><div class="dl">Last edited by</div><div class="dv">${esc(p.editedBy)} · ${fmtDate(p.editedAt)}</div></div>`;
+  const dt = T[lang];
+  let html = `<div class="df"><div class="dl">${dt.dlRole}</div><div class="dv">${esc(relLabel(id))}</div></div>`;
+  if (p.birthYear) html += `<div class="df"><div class="dl">${dt.dlBirthYear}</div><div class="dv">${p.birthYear}</div></div>`;
+  if (p.email) html += `<div class="df"><div class="dl">${dt.dlEmail}</div><div class="dv">${esc(p.email)}</div></div>`;
+  if (p.notes) html += `<div class="df"><div class="dl">${dt.dlNotes}</div><div class="dv">${esc(p.notes)}</div></div>`;
+  if (conns.length) html += `<div class="df"><div class="dl">${dt.dlConnections}</div><div class="dv">${conns.map(c=>`<span class="rel-chip">${esc(c)}</span>`).join('')}</div></div>`;
+  if (missingParent(id)) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px"><span style="font-size:16px">⚠️</span><span>${dt.missingParentMsg}</span></div>`;
+  html += `<div class="df"><div class="dl">${dt.dlAddedBy}</div><div class="dv">${p.addedBy === 'system' ? dt.foundingRecord : esc(p.addedBy)} · ${fmtDate(p.addedAt)}</div></div>`;
+  if (p.editedBy) html += `<div class="df"><div class="dl">${dt.dlLastEdited}</div><div class="dv">${esc(p.editedBy)} · ${fmtDate(p.editedAt)}</div></div>`;
 
   document.getElementById('detailBody').innerHTML = html;
 
   const foot = document.getElementById('detailFoot');
   if (!sess.readOnly) {
     const isRoot = id === ROOT_ID;
+    const ft = T[lang];
     foot.innerHTML = `
-      <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
-      <button class="btn btn-secondary" onclick="closeDetail();openEdit('${id}')">✏️ Edit</button>
-      ${isRoot ? '' : `<button class="btn btn-secondary" style="color:#c0392b;border-color:#c0392b" onclick="confirmDelete('${id}')">🗑 Delete</button>`}
-      <button class="btn btn-primary" onclick="closeDetail();openAdd('${id}')">+ Add Relative</button>`;
+      <button class="btn btn-secondary" onclick="closeDetail()">${ft.btnClose}</button>
+      <button class="btn btn-secondary" onclick="closeDetail();openEdit('${id}')">${ft.btnEdit}</button>
+      ${isRoot ? '' : `<button class="btn btn-secondary" style="color:#c0392b;border-color:#c0392b" onclick="confirmDelete('${id}')">${ft.btnDelete}</button>`}
+      <button class="btn btn-primary" onclick="closeDetail();openAdd('${id}')">${ft.btnAddRelative}</button>`;
   } else {
-    foot.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="closeDetail()">Close</button>`;
+    foot.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="closeDetail()">${T[lang].btnClose}</button>`;
   }
 
   document.getElementById('detailOverlay').style.display = 'flex';
@@ -1003,9 +1138,10 @@ function confirmDelete(id) {
 
   // Count relationships that will also be removed
   const relCount = data.relationships.filter(r => r.fromId === id || r.toId === id).length;
-  const relNote  = relCount ? ` This will also remove ${relCount} relationship${relCount > 1 ? 's' : ''}.` : '';
+  const t = T[lang];
+  const relNote  = relCount ? t.confirmRelNote(relCount) : '';
 
-  if (!confirm(`Delete "${p.name}" from the family tree?${relNote}\n\nThis cannot be undone.`)) return;
+  if (!confirm(t.confirmDelete(p.name, relNote))) return;
   deletePerson(id);
 }
 
@@ -1016,14 +1152,14 @@ async function deletePerson(id) {
 
   await save();
   render();
-  toast('Entry deleted');
+  toast(T[lang].toastDeleted);
 }
 
 // ──────────────────────────────────────────────────────
 // EDIT MODAL
 // ──────────────────────────────────────────────────────
 function openEdit(id) {
-  if (sess.readOnly) { toast('Sign in with a name to edit entries'); return; }
+  if (sess.readOnly) { toast(T[lang].toastSignInEdit); return; }
   const p = data.people.find(x => x.id === id);
   if (!p) return;
   ui.editId = id;
@@ -1039,7 +1175,7 @@ function closeEdit() { document.getElementById('editOverlay').style.display = 'n
 
 async function commitEdit() {
   const name = document.getElementById('editName').value.trim();
-  if (!name) { toast('Name cannot be empty'); return; }
+  if (!name) { toast(T[lang].toastNameEmpty); return; }
 
   const p = data.people.find(x => x.id === ui.editId);
   if (!p) return;
@@ -1054,14 +1190,14 @@ async function commitEdit() {
   await save();
   closeEdit();
   render();
-  toast(`✓ ${name} updated`);
+  toast(T[lang].toastUpdated(name));
 }
 
 // ──────────────────────────────────────────────────────
 // ADD MODAL
 // ──────────────────────────────────────────────────────
 function openAdd(fromId) {
-  if (sess.readOnly) { toast('Sign in with a name to add family members'); return; }
+  if (sess.readOnly) { toast(T[lang].toastSignInAdd); return; }
   ui.addToId = fromId;
   ui.relType = null;
   const p = data.people.find(x => x.id === fromId);
@@ -1118,9 +1254,9 @@ function refreshSecondParent() {
     .filter(p => p.id !== ui.addToId && !spouseIds.includes(p.id))
     .sort((a,b) => a.name.localeCompare(b.name));
 
-  sel.innerHTML = '<option value="">— None —</option>';
+  sel.innerHTML = `<option value="">${T[lang].optNone}</option>`;
   if (spouseIds.length) {
-    const grp = document.createElement('optgroup'); grp.label = 'Spouse / Partner';
+    const grp = document.createElement('optgroup'); grp.label = T[lang].grpSpouse;
     for (const id of spouseIds) {
       const p = data.people.find(x=>x.id===id);
       if (p) { const o=document.createElement('option'); o.value=id; o.textContent=p.name; grp.appendChild(o); }
@@ -1129,7 +1265,7 @@ function refreshSecondParent() {
     if (spouseIds.length===1) sel.value = spouseIds[0];
   }
   if (others.length) {
-    const grp = document.createElement('optgroup'); grp.label = 'Other family members';
+    const grp = document.createElement('optgroup'); grp.label = T[lang].grpOtherFamily;
     for (const p of others) { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; grp.appendChild(o); }
     sel.appendChild(grp);
   }
@@ -1166,11 +1302,11 @@ function refreshLinkSelect() {
   const candidates = data.people.filter(p => !alreadyLinked.has(p.id));
   candidates.sort((a,b) => a.name.localeCompare(b.name));
 
-  sel.innerHTML = '<option value="">— Choose —</option>';
+  sel.innerHTML = `<option value="">${T[lang].optChoose}</option>`;
 
   if (t === 'child' && spouseChildIds.size) {
     const grp = document.createElement('optgroup');
-    grp.label = "Spouse's children (suggested)";
+    grp.label = T[lang].grpSpouseChildren;
     for (const p of candidates.filter(p => spouseChildIds.has(p.id))) {
       const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; grp.appendChild(o);
     }
@@ -1179,13 +1315,13 @@ function refreshLinkSelect() {
 
   const rest = candidates.filter(p => !spouseChildIds.has(p.id));
   if (rest.length) {
-    const grp = document.createElement('optgroup'); grp.label = 'All other members';
+    const grp = document.createElement('optgroup'); grp.label = T[lang].grpAllOther;
     for (const p of rest) { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; grp.appendChild(o); }
     sel.appendChild(grp);
   }
 
   if (candidates.length === 0) {
-    const o=document.createElement('option'); o.disabled=true; o.textContent='No eligible people found'; sel.appendChild(o);
+    const o=document.createElement('option'); o.disabled=true; o.textContent=T[lang].noEligible; sel.appendChild(o);
   }
 }
 
@@ -1196,13 +1332,13 @@ function getSpousesOf(id) {
 }
 
 async function commitAdd() {
-  if (!ui.relType)  { toast('Please select a relationship type'); return; }
-  if (!ui.addToId)  { toast('No reference person selected'); return; }
+  if (!ui.relType)  { toast(T[lang].toastSelectRel); return; }
+  if (!ui.addToId)  { toast(T[lang].toastNoPerson); return; }
 
   // ── LINK EXISTING MODE ──
   if (ui.addMode === 'link') {
     const linkId = document.getElementById('linkSelect').value;
-    if (!linkId) { toast('Please select a person to link'); return; }
+    if (!linkId) { toast(T[lang].toastSelectPerson); return; }
     const linked = data.people.find(x => x.id === linkId);
     if (!linked) return;
 
@@ -1213,7 +1349,7 @@ async function commitAdd() {
     else if (t === 'spouse')  data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'spouse' });
 
     await save(); closeAdd(); render();
-    toast(`✓ ${linked.name} linked to the tree!`);
+    toast(T[lang].toastLinked(linked.name));
     return;
   }
 
@@ -1223,7 +1359,7 @@ async function commitAdd() {
   const yearV = document.getElementById('newYear').value;
   const notes = document.getElementById('newNotes').value.trim();
 
-  if (!name) { toast('Please enter a full name'); return; }
+  if (!name) { toast(T[lang].toastEnterName); return; }
 
   // Duplicate check
   const alreadyLinked = data.relationships
@@ -1235,7 +1371,7 @@ async function commitAdd() {
       data.relationships.some(r => r.type===ui.relType &&
         ((r.fromId===ui.addToId&&r.toId===oid)||(r.toId===ui.addToId&&r.fromId===oid)));
   });
-  if (dup) { toast('This person already has that relationship here'); return; }
+  if (dup) { toast(T[lang].toastDuplicate); return; }
 
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now();
   data.people.push({ id, name, email, birthYear: yearV ? parseInt(yearV) : null,
@@ -1252,7 +1388,7 @@ async function commitAdd() {
 
   sess.added.push(id);
   await save(); closeAdd(); render();
-  toast(`✓ ${name} added to the family tree!`);
+  toast(T[lang].toastAdded(name));
 }
 
 // ──────────────────────────────────────────────────────
@@ -1274,6 +1410,8 @@ function toast(msg) {
 // ──────────────────────────────────────────────────────
 // KEYBOARD & RESIZE
 // ──────────────────────────────────────────────────────
+applyLang(); // apply saved language on load
+
 document.getElementById('vname').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('vemail').focus(); });
 document.getElementById('vemail').addEventListener('keydown', e => { if(e.key==='Enter') enterApp(false); });
 document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeDetail(); closeAdd(); closeEdit(); } });
