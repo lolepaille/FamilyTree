@@ -993,19 +993,20 @@ function applyXform() {
 // ──────────────────────────────────────────────────────
 function initPanZoom() {
   const svg = document.getElementById('svg');
-  let dragging = false, sx, sy, stx, sty;
-  let pinching = false, lastDist = 0;
+  let mouseDragging = false, touchDragging = false, pinching = false;
+  let sx, sy, stx, sty, lastDist = 0;
 
+  // ── Mouse ──
   svg.addEventListener('mousedown', e => {
-    dragging = true; sx = e.clientX; sy = e.clientY; stx = vp.x; sty = vp.y;
+    mouseDragging = true; sx = e.clientX; sy = e.clientY; stx = vp.x; sty = vp.y;
   });
   document.addEventListener('mousemove', e => {
-    if (!dragging) return;
+    if (!mouseDragging) return;
     vp.x = stx + e.clientX - sx;
     vp.y = sty + e.clientY - sy;
     applyXform();
   });
-  document.addEventListener('mouseup', () => { dragging = false; });
+  document.addEventListener('mouseup', () => { mouseDragging = false; });
 
   svg.addEventListener('wheel', e => {
     e.preventDefault();
@@ -1019,22 +1020,22 @@ function initPanZoom() {
     applyXform();
   }, { passive: false });
 
-  // Touch — listeners on document so fast swipes don't lose tracking
+  // ── Touch — separate flags so touch events never reset mouse drag ──
   svg.addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
-      dragging = true; pinching = false;
+      touchDragging = true; pinching = false;
       sx = e.touches[0].clientX; sy = e.touches[0].clientY;
       stx = vp.x; sty = vp.y;
     } else if (e.touches.length === 2) {
-      pinching = true; dragging = false;
+      pinching = true; touchDragging = false;
       lastDist = touchDist(e.touches);
     }
   }, { passive: false });
 
   document.addEventListener('touchmove', e => {
-    if (!dragging && !pinching) return;
+    if (!touchDragging && !pinching) return;
     e.preventDefault();
-    if (e.touches.length === 1 && dragging) {
+    if (e.touches.length === 1 && touchDragging) {
       vp.x = stx + e.touches[0].clientX - sx;
       vp.y = sty + e.touches[0].clientY - sy;
       applyXform();
@@ -1047,8 +1048,8 @@ function initPanZoom() {
     }
   }, { passive: false });
 
-  document.addEventListener('touchend',    () => { dragging = false; pinching = false; });
-  document.addEventListener('touchcancel', () => { dragging = false; pinching = false; });
+  document.addEventListener('touchend',    () => { touchDragging = false; pinching = false; });
+  document.addEventListener('touchcancel', () => { touchDragging = false; pinching = false; });
 }
 
 function touchDist(t) {
