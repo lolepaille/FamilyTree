@@ -615,14 +615,41 @@ function gen0Order(ids) {
 // Place a set of nodes at Y, each centered above its children that are already in pos.
 // Couples are kept together; overlaps are resolved by pushing rightward.
 function placeByChildren(ids, y, pos) {
-  // Desired center-X for each node = avg X-center of its children already positioned
   const desired = {};
+
+  // First pass: anchor on own positioned children
   for (const id of ids) {
     const cxs = data.relationships
       .filter(r => r.type === 'child' && r.fromId === id && pos[r.toId])
       .map(r => pos[r.toId].x + NW / 2);
     desired[id] = cxs.length ? cxs.reduce((a,b) => a+b, 0) / cxs.length : null;
   }
+
+  // Second pass: unanchored nodes (no positioned children) pull toward placed siblings
+  // Repeat until no more changes (handles chains of siblings)
+  for (let pass = 0; pass < ids.length; pass++) {
+    let changed = false;
+    for (const id of ids) {
+      if (desired[id] !== null) continue;
+      const myParents = data.relationships
+        .filter(r => r.type === 'child' && r.toId === id)
+        .map(r => r.fromId);
+      const sibAnchors = [];
+      for (const pid of myParents) {
+        data.relationships
+          .filter(r => r.type === 'child' && r.fromId === pid && r.toId !== id && ids.includes(r.toId) && desired[r.toId] !== null)
+          .forEach(r => sibAnchors.push(desired[r.toId]));
+      }
+      if (sibAnchors.length > 0) {
+        desired[id] = sibAnchors.reduce((a,b) => a+b, 0) / sibAnchors.length;
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+
+  // Remaining nulls → 0 (spreadClusters will push them right of everything else)
+  for (const id of ids) { if (desired[id] === null) desired[id] = 0; }
 
   const clusters = buildCoupleClusters(ids, desired);
   clusters.sort((a,b) => a.cx - b.cx);
@@ -1178,7 +1205,7 @@ async function deletePerson(id) {
   setSaving(true);
   await save();
   setSaving(false);
-  render();
+  resetView();
   toast(T[lang].toastDeleted);
 }
 
@@ -1218,7 +1245,7 @@ async function commitEdit() {
   await save();
   setSaving(false, 'btnCommitEdit');
   closeEdit();
-  render();
+  resetView();
   toast(T[lang].toastUpdated(name));
 }
 
@@ -1380,7 +1407,7 @@ async function commitAdd() {
     setSaving(true, 'btnCommitAdd');
     await save();
     setSaving(false, 'btnCommitAdd');
-    closeAdd(); render();
+    closeAdd(); resetView();
     toast(T[lang].toastLinked(linked.name));
     return;
   }
@@ -1422,7 +1449,7 @@ async function commitAdd() {
   setSaving(true, 'btnCommitAdd');
   await save();
   setSaving(false, 'btnCommitAdd');
-  closeAdd(); render();
+  closeAdd(); resetView();
   toast(T[lang].toastAdded(name));
 }
 
