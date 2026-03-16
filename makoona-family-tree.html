@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Makoona Family Tree</title>
+<style>
+:root {
+  --cream: #FDF6EC;
+  --warm-white: #FEFAF4;
+  --soft-green: #7BAE7F;
+  --light-green: #A8C5A0;
+  --earth: #8B6E52;
+  --warm-tan: #C4956A;
+  --dark: #3D2B1F;
+  --mid: #6B4C35;
+  --border: #D4B896;
+  --shadow: rgba(61,43,31,0.15);
+  --session: #E8734A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--cream);color:var(--dark);min-height:100vh}
+
+/* LANDING */
+#landing{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.card{background:#fff;border-radius:16px;padding:40px;max-width:460px;width:100%;box-shadow:0 8px 32px var(--shadow);border:1px solid var(--border)}
+.card .icon{font-size:52px;display:block;margin-bottom:16px}
+.card h1{font-size:26px;color:var(--earth);margin-bottom:6px}
+.card .sub{color:var(--mid);font-size:14px;line-height:1.6;margin-bottom:28px}
+.fg{margin-bottom:18px}
+label{display:block;font-size:13px;font-weight:600;color:var(--mid);margin-bottom:5px}
+input,textarea,select{width:100%;padding:11px 14px;border:2px solid var(--border);border-radius:8px;font-size:14px;background:var(--warm-white);color:var(--dark);font-family:inherit;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--soft-green)}
+textarea{resize:vertical;min-height:72px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;gap:6px}
+.btn-primary{background:var(--soft-green);color:#fff;width:100%}
+.btn-primary:hover{background:#6a9d6e}
+.btn-secondary{background:transparent;color:var(--mid);border:2px solid var(--border)}
+.btn-secondary:hover{border-color:var(--soft-green);color:var(--soft-green)}
+.skip{text-align:center;margin-top:14px;font-size:13px;color:var(--mid)}
+.skip a{color:var(--soft-green);cursor:pointer;font-weight:600;text-decoration:none}
+.skip a:hover{text-decoration:underline}
+
+/* APP */
+#app{display:none;height:100vh;flex-direction:column}
+.hdr{background:#fff;border-bottom:2px solid var(--border);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100;gap:10px}
+.hdr-title{font-size:17px;font-weight:700;color:var(--earth);white-space:nowrap}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.badge-green{background:var(--light-green);color:#fff}
+.badge-tan{background:var(--warm-tan);color:#fff}
+.icon-btn{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:600;color:var(--mid);transition:all .2s}
+.icon-btn:hover{background:var(--border)}
+
+/* TREE */
+.tree-wrap{flex:1;overflow:hidden;position:relative;background:var(--cream);background-image:radial-gradient(circle,#d4b89660 1px,transparent 1px);background-size:22px 22px}
+#svg{position:absolute;top:0;left:0;cursor:grab;user-select:none;-webkit-user-select:none}
+#svg:active{cursor:grabbing}
+
+/* ZOOM */
+.zoom{position:absolute;bottom:20px;right:20px;display:flex;flex-direction:column;gap:4px;z-index:50}
+.zoom-btn{width:36px;height:36px;background:#fff;border:2px solid var(--border);border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);box-shadow:0 2px 8px var(--shadow);transition:all .2s}
+.zoom-btn:hover{background:var(--cream);border-color:var(--soft-green)}
+
+/* LEGEND */
+.legend{position:absolute;bottom:20px;left:16px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:11px;color:var(--mid);z-index:50;line-height:1.8}
+.li{display:flex;align-items:center;gap:6px}
+.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(61,43,31,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:28px;max-width:460px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.modal h3{font-size:19px;color:var(--earth);margin-bottom:18px}
+.modal-foot{display:flex;gap:10px;margin-top:20px}
+.modal-foot .btn{flex:1}
+
+/* DETAIL */
+.df{margin-bottom:12px}
+.dl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mid);margin-bottom:2px}
+.dv{font-size:14px;color:var(--dark)}
+.rel-chip{display:inline-block;background:var(--light-green);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px}
+
+/* REL TYPE GRID */
+.rel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.rel-btn{padding:11px 8px;border:2px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;background:var(--warm-white);font-size:13px;font-weight:600;color:var(--mid);transition:all .2s}
+.rel-btn:hover,.rel-btn.sel{border-color:var(--soft-green);background:#f0f7f0;color:var(--soft-green)}
+
+/* MODE TABS */
+.mode-tab{flex:1;padding:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.mode-tab-on{background:var(--soft-green);color:#fff}
+.mode-tab-off{background:var(--warm-white);color:var(--mid)}
+.mode-tab-off:hover{background:var(--cream)}
+
+/* TOAST */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+
+/* EMPTY STATE */
+.empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:var(--mid);font-size:14px;pointer-events:none}
+
+@media(max-width:480px){
+  .card{padding:24px}
+  .modal{padding:20px}
+  .hdr{padding:9px 12px}
+  .hdr-title{font-size:14px}
+  .legend{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing">
+  <div class="card">
+    <span class="icon">🌳</span>
+    <h1>Makoona Family Tree</h1>
+    <p class="sub">Explore our growing family history. Enter your name to contribute, or browse as a guest.</p>
+    <div class="fg">
+      <label for="vname">Your Name <span style="font-weight:400;color:var(--warm-tan)">(optional — needed to add members)</span></label>
+      <input type="text" id="vname" placeholder="e.g. Jane Makoona" autocomplete="name">
+    </div>
+    <div class="fg">
+      <label for="vemail">Your Email <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <input type="email" id="vemail" placeholder="jane@example.com" autocomplete="email">
+    </div>
+    <button class="btn btn-primary" onclick="enterApp(false)">View Family Tree →</button>
+    <div class="skip"><a onclick="enterApp(true)">Browse as guest (read-only)</a></div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-title">🌳 Makoona Family Tree</div>
+    <div class="hdr-right">
+      <div id="userbadge"></div>
+      <button class="icon-btn" onclick="resetView()">⊙ Reset View</button>
+    </div>
+  </div>
+  <div class="tree-wrap" id="wrap">
+    <svg id="svg"></svg>
+    <div class="zoom">
+      <button class="zoom-btn" onclick="zoomBy(1.2)" title="Zoom in">+</button>
+      <button class="zoom-btn" onclick="zoomBy(0.8)" title="Zoom out">−</button>
+      <button class="zoom-btn" onclick="resetView()" title="Fit view" style="font-size:13px">⊙</button>
+    </div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:var(--soft-green)"></div> Root family</div>
+      <div class="li"><div class="ld" style="background:var(--session)"></div> Added this session</div>
+      <div class="li"><div class="ld" style="background:var(--warm-tan)"></div> Other members</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DETAIL MODAL ═══ -->
+<div id="detailOverlay" class="overlay" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="detailName"></h3>
+    <div id="detailBody"></div>
+    <div class="modal-foot" id="detailFoot"></div>
+  </div>
+</div>
+
+<!-- ═══ ADD MODAL ═══ -->
+<div id="addOverlay" class="overlay" style="display:none" onclick="if(event.target===this)closeAdd()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Add a Family Member</h3>
+    <div class="fg">
+      <label>Relationship to <strong id="addToName"></strong>:</label>
+      <div class="rel-grid">
+        <div class="rel-btn" id="rb-parent"  onclick="pickRel('parent',this)">👴 Parent</div>
+        <div class="rel-btn" id="rb-child"   onclick="pickRel('child',this)">👶 Child</div>
+        <div class="rel-btn" id="rb-sibling" onclick="pickRel('sibling',this)">👫 Sibling</div>
+        <div class="rel-btn" id="rb-spouse"  onclick="pickRel('spouse',this)">💑 Spouse / Partner</div>
+      </div>
+    </div>
+
+    <!-- Mode toggle: only shown after a rel type is picked -->
+    <div id="addModeFg" style="display:none;margin-bottom:18px">
+      <div style="display:flex;gap:0;border:2px solid var(--border);border-radius:8px;overflow:hidden">
+        <button id="modeNewBtn"      class="mode-tab mode-tab-on"  onclick="setAddMode('new')">+ New Person</button>
+        <button id="modeLinkBtn"     class="mode-tab mode-tab-off" onclick="setAddMode('link')">🔗 Link Existing</button>
+      </div>
+    </div>
+
+    <!-- Link-existing picker -->
+    <div id="linkExistingFg" style="display:none">
+      <div class="fg">
+        <label for="linkSelect">Select person from tree *</label>
+        <select id="linkSelect"><option value="">— Choose —</option></select>
+      </div>
+    </div>
+
+    <!-- New-person fields -->
+    <div id="newPersonFields">
+      <div class="fg" id="secondParentFg" style="display:none">
+        <label for="secondParent">Second Parent <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <select id="secondParent"><option value="">— None —</option></select>
+      </div>
+      <div class="fg">
+        <label for="newName">Full Name *</label>
+        <input type="text" id="newName" placeholder="Full name">
+      </div>
+      <div class="fg">
+        <label for="newEmail">Email <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <input type="email" id="newEmail" placeholder="email@example.com">
+      </div>
+      <div class="fg">
+        <label for="newYear">Birth Year <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <input type="number" id="newYear" placeholder="e.g. 1985" min="1800" max="2026">
+      </div>
+      <div class="fg">
+        <label for="newNotes">Notes <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+        <textarea id="newNotes" placeholder="Any additional notes…"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeAdd()">Cancel</button>
+      <button class="btn btn-primary" onclick="commitAdd()">Add to Tree</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EDIT MODAL ═══ -->
+<div id="editOverlay" class="overlay" style="display:none" onclick="if(event.target===this)closeEdit()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Edit Family Member</h3>
+    <div class="fg">
+      <label for="editName">Full Name *</label>
+      <input type="text" id="editName" placeholder="Full name">
+    </div>
+    <div class="fg">
+      <label for="editEmail">Email <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <input type="email" id="editEmail" placeholder="email@example.com">
+    </div>
+    <div class="fg">
+      <label for="editYear">Birth Year <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <input type="number" id="editYear" placeholder="e.g. 1985" min="1800" max="2026">
+    </div>
+    <div class="fg">
+      <label for="editNotes">Notes <span style="font-weight:400;color:var(--warm-tan)">(optional)</span></label>
+      <textarea id="editNotes" placeholder="Any additional notes…"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+      <button class="btn btn-primary" onclick="commitEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────────────
+// CONSTANTS & DEFAULTS
+// ──────────────────────────────────────────────────────
+const ROOT_ID = 'lawrence-makoona-root';
+const STORE_KEY = 'genealogy_tree';
+const NW = 164, NH = 66, HGAP = 28, VGAP = 90;
+
+function defaultData() {
+  const t = new Date().toISOString();
+  return {
+    people: [
+      { id: ROOT_ID,               name: 'Lawrence Makoona',   email: '', birthYear: null, notes: 'Root family member', addedBy: 'system', addedAt: t },
+      { id: 'burty-makoona',       name: 'Burty Makoona',      email: '', birthYear: null, notes: '', addedBy: 'system', addedAt: t },
+      { id: 'morris-makoona',      name: 'Morris Makoona',     email: '', birthYear: null, notes: '', addedBy: 'system', addedAt: t },
+      { id: 'guillemette-makoona', name: 'Guillemette Makoona',email: '', birthYear: null, notes: '', addedBy: 'system', addedAt: t },
+    ],
+    relationships: [
+      // Morris & Guillemette are parents of Lawrence & Burty
+      { fromId: 'morris-makoona',      toId: ROOT_ID,         type: 'child' },
+      { fromId: 'morris-makoona',      toId: 'burty-makoona', type: 'child' },
+      { fromId: 'guillemette-makoona', toId: ROOT_ID,         type: 'child' },
+      { fromId: 'guillemette-makoona', toId: 'burty-makoona', type: 'child' },
+      // Spouses
+      { fromId: 'morris-makoona',      toId: 'guillemette-makoona', type: 'spouse' },
+      // Siblings
+      { fromId: ROOT_ID,               toId: 'burty-makoona', type: 'sibling' },
+    ],
+  };
+}
+
+// ──────────────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────────────
+let data = { people: [], relationships: [] };
+let sess = { name: '', email: '', readOnly: true, added: [] };
+let vp   = { x: 0, y: 0, scale: 1, initialised: false };
+let ui   = { relType: null, addToId: null, editId: null, addMode: 'new' };
+
+// ──────────────────────────────────────────────────────
+// STORAGE  (localStorage; falls back to in-memory)
+// ──────────────────────────────────────────────────────
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) { const p = JSON.parse(raw); if (p.people && p.relationships) { data = p; return; } }
+  } catch(_) {}
+  data = defaultData();
+  save();
+}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(_) { toast('⚠️ Storage unavailable'); }
+}
+
+// ──────────────────────────────────────────────────────
+// IDENTITY
+// ──────────────────────────────────────────────────────
+function enterApp(forceGuest) {
+  const name  = document.getElementById('vname').value.trim();
+  const email = document.getElementById('vemail').value.trim();
+  if (!forceGuest && name) { sess.name = name; sess.email = email; sess.readOnly = false; }
+  else { sess.readOnly = true; }
+
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('userbadge').innerHTML = sess.readOnly
+    ? '<span class="badge badge-tan">👁 Guest (read-only)</span>'
+    : `<span class="badge badge-green">✓ ${esc(sess.name)}</span>`;
+
+  load();
+  render();
+  initPanZoom();
+}
+
+// ──────────────────────────────────────────────────────
+// GENERATION LAYOUT
+// ──────────────────────────────────────────────────────
+function computeGens() {
+  const gen = { [ROOT_ID]: 0 };
+  const visited = new Set([ROOT_ID]);
+  const queue = [ROOT_ID];
+  while (queue.length) {
+    const id = queue.shift();
+    const g  = gen[id];
+    for (const r of data.relationships) {
+      let oid = null, delta = 0;
+      if (r.fromId === id) {
+        oid = r.toId;
+        delta = r.type === 'child' ? 1 : 0;       // fromId=parent → child is +1
+      } else if (r.toId === id) {
+        oid = r.fromId;
+        delta = r.type === 'child' ? -1 : 0;      // toId=child → parent is -1
+      }
+      if (oid && !visited.has(oid)) {
+        visited.add(oid);
+        gen[oid] = g + delta;
+        queue.push(oid);
+      }
+    }
+  }
+  for (const p of data.people) if (!(p.id in gen)) gen[p.id] = 0;
+  return gen;
+}
+
+// ──────────────────────────────────────────────────────
+// LAYOUT ENGINE  — family-cluster-aware
+// ──────────────────────────────────────────────────────
+
+function computeLayout() {
+  const gens  = computeGens();
+  const byGen = {};
+  for (const p of data.people) {
+    const g = gens[p.id] ?? 0;
+    (byGen[g] = byGen[g] || []).push(p.id);
+  }
+  const sortedGs = Object.keys(byGen).map(Number).sort((a,b) => a - b);
+  const genY     = {};
+  sortedGs.forEach((g, i) => genY[g] = i * (NH + VGAP));
+  const pos = {};
+
+  // 1. Anchor: lay out generation 0 with sibling-grouped ordering
+  if (byGen[0]) {
+    const ids = gen0Order(byGen[0]);
+    const totalW = ids.length * NW + (ids.length - 1) * HGAP;
+    let x = -totalW / 2;
+    for (const id of ids) { pos[id] = { x, y: genY[0] }; x += NW + HGAP; }
+  }
+
+  // 2. Parent rows (gen -1, -2, …): position above their already-placed children
+  for (const g of sortedGs.filter(g => g < 0).sort((a,b) => b - a)) {
+    placeByChildren(byGen[g], genY[g], pos);
+  }
+
+  // 3. Child rows (gen 1, 2, …): position below their already-placed parents
+  for (const g of sortedGs.filter(g => g > 0).sort((a,b) => a - b)) {
+    placeByParents(byGen[g], genY[g], pos);
+  }
+
+  return pos;
+}
+
+// Gen-0 ordering: siblings go LEFT of root (adjacent), their outside-spouses to the far-left;
+// root is next, root's spouse(s) to the right; remainder after.
+function gen0Order(ids) {
+  const result = [];
+  const placed = new Set();
+
+  function availSpouseOf(id) {
+    for (const r of data.relationships)
+      if (r.type === 'spouse')
+        if (r.fromId === id && ids.includes(r.toId)   && !placed.has(r.toId))   return r.toId;
+        else if (r.toId === id && ids.includes(r.fromId) && !placed.has(r.fromId)) return r.fromId;
+    return null;
+  }
+  function ins(id) {
+    if (placed.has(id) || !ids.includes(id)) return;
+    placed.add(id); result.push(id);
+  }
+
+  // Find root's siblings in this row
+  const siblings = [];
+  for (const r of data.relationships) {
+    if (r.type === 'sibling') {
+      const sib = r.fromId === ROOT_ID ? r.toId : r.toId === ROOT_ID ? r.fromId : null;
+      if (sib && ids.includes(sib) && !siblings.includes(sib)) siblings.push(sib);
+    }
+  }
+
+  // Each sibling: their spouse goes FIRST (outermost-left), then the sibling
+  for (const sib of siblings) {
+    const sp = availSpouseOf(sib);
+    if (sp) ins(sp);
+    ins(sib);
+  }
+
+  // Root, then root's spouse immediately after
+  ins(ROOT_ID);
+  const rs = availSpouseOf(ROOT_ID);
+  if (rs) ins(rs);
+
+  // Remaining (e.g. another sibling's spouse already placed, or unrelated gen-0 people)
+  for (const id of ids) {
+    ins(id);
+    const sp = availSpouseOf(id);
+    if (sp) ins(sp);
+  }
+
+  return result;
+}
+
+// Place a set of nodes at Y, each centered above its children that are already in pos.
+// Couples are kept together; overlaps are resolved by pushing rightward.
+function placeByChildren(ids, y, pos) {
+  // Desired center-X for each node = avg X-center of its children already positioned
+  const desired = {};
+  for (const id of ids) {
+    const cxs = data.relationships
+      .filter(r => r.type === 'child' && r.fromId === id && pos[r.toId])
+      .map(r => pos[r.toId].x + NW / 2);
+    desired[id] = cxs.length ? cxs.reduce((a,b) => a+b, 0) / cxs.length : null;
+  }
+
+  const clusters = buildCoupleClusters(ids, desired);
+  clusters.sort((a,b) => a.cx - b.cx);
+  spreadClusters(clusters);
+  assignClusterPos(clusters, y, pos);
+}
+
+// Place a set of nodes at Y, each centered below its parents already in pos.
+function placeByParents(ids, y, pos) {
+  const desired = {};
+  for (const id of ids) {
+    const pxs = data.relationships
+      .filter(r => r.type === 'child' && r.toId === id && pos[r.fromId])
+      .map(r => pos[r.fromId].x + NW / 2);
+    desired[id] = pxs.length ? pxs.reduce((a,b) => a+b, 0) / pxs.length : null;
+  }
+
+  // Children aren't forced into couples; treat each as its own cluster
+  const clusters = ids.map(id => ({
+    ids: [id],
+    cx:  desired[id] ?? 0,
+    w:   NW,
+  }));
+  clusters.sort((a,b) => a.cx - b.cx);
+  spreadClusters(clusters);
+  assignClusterPos(clusters, y, pos);
+}
+
+// Group ids into single-node or 2-node (couple) clusters with a shared center.
+function buildCoupleClusters(ids, desired) {
+  const placed = new Set();
+  const clusters = [];
+
+  function spouseInRow(id) {
+    for (const r of data.relationships)
+      if (r.type === 'spouse') {
+        const o = r.fromId === id ? r.toId : r.toId === id ? r.fromId : null;
+        if (o && ids.includes(o) && !placed.has(o)) return o;
+      }
+    return null;
+  }
+
+  for (const id of ids) {
+    if (placed.has(id)) continue;
+    const sp = spouseInRow(id);
+    if (sp) {
+      placed.add(id); placed.add(sp);
+      const d1 = desired[id], d2 = desired[sp];
+      const cx = (d1 != null && d2 != null) ? (d1 + d2) / 2
+               : (d1 != null ? d1 : d2 != null ? d2 : 0);
+      // Left member = the one with smaller desired X
+      const [L, R] = (d1 ?? 0) <= (d2 ?? 0) ? [id, sp] : [sp, id];
+      clusters.push({ ids: [L, R], cx, w: NW * 2 + HGAP });
+    } else {
+      placed.add(id);
+      clusters.push({ ids: [id], cx: desired[id] ?? 0, w: NW });
+    }
+  }
+  return clusters;
+}
+
+// Push clusters rightward until no two overlap (minimum gap = HGAP).
+function spreadClusters(clusters) {
+  for (let i = 1; i < clusters.length; i++) {
+    const prev = clusters[i - 1];
+    const curr = clusters[i];
+    const minLeft = prev.cx + prev.w / 2 + HGAP;
+    if (curr.cx - curr.w / 2 < minLeft)
+      curr.cx = minLeft + curr.w / 2;
+  }
+}
+
+// Write pos entries from cluster list.
+function assignClusterPos(clusters, y, pos) {
+  for (const c of clusters) {
+    let x = c.cx - c.w / 2;
+    for (const id of c.ids) { pos[id] = { x, y }; x += NW + HGAP; }
+  }
+}
+
+// ──────────────────────────────────────────────────────
+// RELATIONSHIP LABELS
+// ──────────────────────────────────────────────────────
+function relLabel(id) {
+  if (id === ROOT_ID) return '★ Root';
+  const gens = computeGens();
+  const g = gens[id] ?? 0;
+
+  // Direct check with root
+  for (const r of data.relationships) {
+    if (r.type === 'spouse' && (r.fromId === id || r.toId === id)) {
+      const oid = r.fromId === id ? r.toId : r.fromId;
+      if (oid === ROOT_ID) return 'Spouse/Partner';
+    }
+    if (r.type === 'sibling' && (r.fromId === id || r.toId === id)) {
+      const oid = r.fromId === id ? r.toId : r.fromId;
+      if (oid === ROOT_ID) return 'Sibling';
+    }
+    if (r.type === 'child') {
+      if (r.fromId === id && r.toId === ROOT_ID) return 'Parent';
+      if (r.toId === id && r.fromId === ROOT_ID) return 'Child';
+    }
+  }
+  if (g <= -2) return 'Grandparent';
+  if (g === -1) return 'Parent';
+  if (g === 0)  return 'Relative';
+  if (g === 1)  return 'Child';
+  return 'Descendant';
+}
+
+// ──────────────────────────────────────────────────────
+// SVG RENDER
+// ──────────────────────────────────────────────────────
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const [k,v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  return e;
+}
+
+let layoutPos = {};
+
+function render() {
+  const svg  = document.getElementById('svg');
+  const wrap = document.getElementById('wrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  svg.setAttribute('width',  W);
+  svg.setAttribute('height', H);
+
+  const pos = computeLayout();
+  layoutPos = pos;
+
+  // Auto-centre on first render
+  if (!vp.initialised) {
+    const xs = Object.values(pos).map(p => p.x);
+    const ys = Object.values(pos).map(p => p.y);
+    const bx = Math.min(...xs), bW = Math.max(...xs) + NW - bx;
+    const by = Math.min(...ys), bH = Math.max(...ys) + NH - by;
+    const sc = Math.min(1, (W - 48) / bW, (H - 80) / bH);
+    vp.scale = sc;
+    vp.x = W / 2 - (bx + bW / 2) * sc;
+    vp.y = H / 2 - (by + bH / 2) * sc + 20;
+    vp.initialised = true;
+  }
+
+  svg.innerHTML = '';
+  const g = el('g', { id: 'root', transform: xform() });
+  svg.appendChild(g);
+
+  // ── edges ──
+  drawAllEdges(g, pos);
+
+  // ── nodes ──
+  const gens = computeGens();
+  for (const p of data.people) {
+    const ppos = pos[p.id];
+    if (!ppos) continue;
+    drawNode(g, p, ppos, gens[p.id] ?? 0);
+  }
+}
+
+// ──────────────────────────────────────────────────────
+// EDGE RENDERING  — grouped "marriage bar" style
+// ──────────────────────────────────────────────────────
+function drawAllEdges(g, pos) {
+  const BROWN = '#8B6E52';
+  const TAN   = '#C4956A';
+  const GREEN = '#6B9E70';
+
+  // Low-level helpers
+  function seg(x1,y1,x2,y2,stroke,dash) {
+    g.appendChild(el('line',{x1,y1:Math.round(y1),x2,y2:Math.round(y2),stroke,
+      'stroke-width':'2','stroke-dasharray':dash||'',opacity:'.75','stroke-linecap':'round'}));
+  }
+  function chip(x,y,text,color) {
+    const tw = text.length*5+8;
+    g.appendChild(el('rect',{x:x-tw/2,y:y-8,width:tw,height:13,rx:3,fill:'#fff',opacity:'.92'}));
+    const t=el('text',{x,y:y+2.5,'text-anchor':'middle','font-size':'9',fill:color,
+      'font-family':'system-ui,sans-serif','font-weight':'700'});
+    t.textContent=text; g.appendChild(t);
+  }
+
+  // ── Build family units from parent→child relationships ──
+  const childToParents = {};
+  for (const r of data.relationships) {
+    if (r.type==='child' && pos[r.fromId] && pos[r.toId]) {
+      (childToParents[r.toId]=childToParents[r.toId]||[]).push(r.fromId);
+    }
+  }
+  // Group children that share the exact same parent-set
+  const unitMap = {};
+  for (const [childId, parents] of Object.entries(childToParents)) {
+    const key = [...parents].sort().join('|');
+    if (!unitMap[key]) unitMap[key] = { parents:[...new Set(parents)], children:[] };
+    unitMap[key].children.push(childId);
+  }
+
+  // Track which sibling pairs are already visually implied by shared parentage
+  const coveredSibPairs = new Set();
+
+  // ── Draw each family unit ──
+  for (const unit of Object.values(unitMap)) {
+    const pIds = unit.parents.filter(id=>pos[id]);
+    const cIds = unit.children.filter(id=>pos[id]);
+    if (!cIds.length) continue;
+
+    const childTopY  = Math.min(...cIds.map(id=>pos[id].y));
+    const parentBotY = pIds.length ? Math.max(...pIds.map(id=>pos[id].y+NH)) : childTopY-VGAP*0.6;
+    const span       = childTopY - parentBotY;
+    const junctionY  = parentBotY + span * 0.42;   // marriage-bar row
+    const childBarY  = parentBotY + span * 0.72;   // children-bar row
+
+    if (pIds.length >= 2) {
+      const pXs     = pIds.map(id=>pos[id].x+NW/2);
+      const barLeft = Math.min(...pXs);
+      const barRight= Math.max(...pXs);
+      const midX    = (barLeft+barRight)/2;
+
+      // Verticals: each parent bottom → junction
+      for (const id of pIds) seg(pos[id].x+NW/2, pos[id].y+NH, pos[id].x+NW/2, junctionY, BROWN);
+      // Horizontal marriage bar
+      seg(barLeft, junctionY, barRight, junctionY, BROWN);
+
+      // Descent from midpoint of bar → childBar (or directly to sole child)
+      const cXs   = cIds.map(id=>pos[id].x+NW/2);
+      const descX = cIds.length===1 ? cXs[0] : midX;
+      if (descX !== midX) seg(midX, junctionY, descX, junctionY, BROWN);
+      seg(descX, junctionY, descX, childBarY, BROWN);
+
+      // Horizontal children bar (only if >1 child)
+      if (cIds.length>1) seg(Math.min(...cXs), childBarY, Math.max(...cXs), childBarY, BROWN);
+
+      // Verticals: childBar → each child top
+      for (const cid of cIds) seg(pos[cid].x+NW/2, childBarY, pos[cid].x+NW/2, pos[cid].y, BROWN);
+
+    } else if (pIds.length===1) {
+      const px  = pos[pIds[0]].x+NW/2;
+      const pyB = pos[pIds[0]].y+NH;
+      const cXs = cIds.map(id=>pos[id].x+NW/2);
+
+      if (cIds.length===1) {
+        const cx = cXs[0];
+        // Elbow: down from parent, across, up to child
+        seg(px, pyB, px, junctionY, BROWN);
+        if (px!==cx) seg(px, junctionY, cx, junctionY, BROWN);
+        seg(cx, junctionY, cx, pos[cIds[0]].y, BROWN);
+      } else {
+        const descX = (Math.min(...cXs)+Math.max(...cXs))/2;
+        seg(px, pyB, px, junctionY, BROWN);
+        if (px!==descX) seg(px, junctionY, descX, junctionY, BROWN);
+        seg(descX, junctionY, descX, childBarY, BROWN);
+        seg(Math.min(...cXs), childBarY, Math.max(...cXs), childBarY, BROWN);
+        for (const cid of cIds) seg(pos[cid].x+NW/2, childBarY, pos[cid].x+NW/2, pos[cid].y, BROWN);
+      }
+    }
+
+    // Mark sibling pairs visually covered by this shared-parent structure
+    for (let i=0;i<cIds.length;i++)
+      for (let j=i+1;j<cIds.length;j++)
+        coveredSibPairs.add([cIds[i],cIds[j]].sort().join('|'));
+  }
+
+  // ── Draw spouse connections ──
+  const drawnSpouses = new Set();
+  for (const r of data.relationships) {
+    if (r.type!=='spouse') continue;
+    const key=[r.fromId,r.toId].sort().join('|');
+    if (drawnSpouses.has(key)) continue;
+    drawnSpouses.add(key);
+    const fp=pos[r.fromId], tp=pos[r.toId];
+    if (!fp||!tp) continue;
+
+    const leftP  = fp.x<=tp.x ? fp : tp;
+    const rightP = fp.x<=tp.x ? tp : fp;
+    const midY   = (leftP.y+rightP.y)/2 + NH/2;
+    const midX   = leftP.x+NW + (rightP.x - (leftP.x+NW))/2;
+
+    // Dashed horizontal between the two node inner edges
+    seg(leftP.x+NW, leftP.y+NH/2, rightP.x, rightP.y+NH/2, TAN, '5,4');
+    chip(midX, midY - NH/2 - 6, 'spouse', TAN);
+  }
+
+  // ── Draw sibling lines only for pairs NOT covered by shared parents ──
+  const drawnSibs = new Set();
+  for (const r of data.relationships) {
+    if (r.type!=='sibling') continue;
+    const key=[r.fromId,r.toId].sort().join('|');
+    if (drawnSibs.has(key)) continue;
+    drawnSibs.add(key);
+    if (coveredSibPairs.has(key)) continue; // implied by shared-parent bars
+    const fp=pos[r.fromId], tp=pos[r.toId];
+    if (!fp||!tp) continue;
+
+    // Arc above the nodes so it doesn't cross cards
+    const x1=fp.x+NW/2, y1=fp.y;
+    const x2=tp.x+NW/2, y2=tp.y;
+    const arcY = Math.min(y1,y2) - 32;
+    const midX = (x1+x2)/2;
+    g.appendChild(el('path',{
+      d:`M${x1} ${y1} Q${x1} ${arcY} ${midX} ${arcY} Q${x2} ${arcY} ${x2} ${y2}`,
+      stroke:GREEN,'stroke-width':'2',fill:'none','stroke-dasharray':'4,3',opacity:'.8'
+    }));
+    chip(midX, arcY-5, 'sibling', GREEN);
+  }
+}
+
+function missingParent(id) {
+  // Returns true if this person has fewer than 2 parents recorded in the tree
+  const parentCount = data.relationships.filter(r => r.type==='child' && r.toId===id).length;
+  // Only flag if they have at least 1 parent (i.e. they're not a root-level person with no parents at all)
+  return parentCount === 1;
+}
+
+function drawNode(parent, p, pos, gen) {
+  const isRoot    = p.id === ROOT_ID;
+  const isSess    = sess.added.includes(p.id);
+  const needsParent = !isRoot && missingParent(p.id);
+  const fill      = isRoot ? '#EFF7EF' : '#fff';
+  const stroke    = isRoot ? '#7BAE7F' : isSess ? '#E8734A' : '#C4956A';
+  const sw        = isRoot ? '2.5' : '2';
+
+  const g = el('g', { transform: `translate(${pos.x},${pos.y})`, cursor:'pointer' });
+  g.addEventListener('click', () => openDetail(p.id));
+
+  // shadow rect
+  g.appendChild(el('rect', { x:2, y:3, width:NW, height:NH, rx:10, fill:'rgba(61,43,31,.09)' }));
+  // card
+  g.appendChild(el('rect', { width:NW, height:NH, rx:10, fill, stroke, 'stroke-width':sw }));
+
+  // name (truncated)
+  let name = p.name;
+  if (name.length > 20) name = name.slice(0, 18) + '…';
+  const nt = el('text', { x: NW/2, y: 26, 'text-anchor':'middle', 'font-size':'13',
+    'font-weight':'700', fill:'#3D2B1F', 'font-family':'system-ui,sans-serif' });
+  nt.textContent = name;
+  g.appendChild(nt);
+
+  // rel label
+  const rl = el('text', { x: NW/2, y: 42, 'text-anchor':'middle', 'font-size':'10',
+    fill:'#6B4C35', 'font-family':'system-ui,sans-serif' });
+  rl.textContent = relLabel(p.id);
+  g.appendChild(rl);
+
+  // birth year
+  if (p.birthYear) {
+    const by = el('text', { x: NW/2, y: 57, 'text-anchor':'middle', 'font-size':'10',
+      fill:'#8B6E52', 'font-family':'system-ui,sans-serif' });
+    by.textContent = `b. ${p.birthYear}`;
+    g.appendChild(by);
+  }
+
+  // root crown
+  if (isRoot) {
+    const cr = el('circle', { cx:14, cy:14, r:7, fill:'#7BAE7F', opacity:'.8' });
+    g.appendChild(cr);
+    const cs = el('text', { x:14, y:18, 'text-anchor':'middle', 'font-size':'9', fill:'#fff', 'font-family':'system-ui' });
+    cs.textContent = '★';
+    g.appendChild(cs);
+  }
+
+  // session dot
+  if (isSess) {
+    g.appendChild(el('circle', { cx: NW-10, cy:10, r:5, fill:'#E8734A' }));
+  }
+
+  // missing-parent badge (top-left, amber !)
+  if (needsParent) {
+    g.appendChild(el('circle', { cx:12, cy:10, r:8, fill:'#F59E0B' }));
+    const bt = el('text', { x:12, y:14, 'text-anchor':'middle', 'font-size':'11',
+      'font-weight':'900', fill:'#fff', 'font-family':'system-ui,sans-serif' });
+    bt.textContent = '!';
+    g.appendChild(bt);
+  }
+
+  parent.appendChild(g);
+}
+
+function xform() {
+  return `translate(${vp.x},${vp.y}) scale(${vp.scale})`;
+}
+function applyXform() {
+  const g = document.getElementById('root');
+  if (g) g.setAttribute('transform', xform());
+}
+
+// ──────────────────────────────────────────────────────
+// PAN & ZOOM
+// ──────────────────────────────────────────────────────
+function initPanZoom() {
+  const svg = document.getElementById('svg');
+  let dragging = false, sx, sy, stx, sty;
+  let pinching = false, lastDist = 0;
+
+  svg.addEventListener('mousedown', e => {
+    dragging = true; sx = e.clientX; sy = e.clientY; stx = vp.x; sty = vp.y;
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    vp.x = stx + e.clientX - sx;
+    vp.y = sty + e.clientY - sy;
+    applyXform();
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+
+  svg.addEventListener('wheel', e => {
+    e.preventDefault();
+    const r = svg.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    const ns = Math.max(.15, Math.min(4, vp.scale * factor));
+    vp.x = mx - (mx - vp.x) * (ns / vp.scale);
+    vp.y = my - (my - vp.y) * (ns / vp.scale);
+    vp.scale = ns;
+    applyXform();
+  }, { passive: false });
+
+  // Touch
+  svg.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      dragging = true; pinching = false;
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+      stx = vp.x; sty = vp.y;
+    } else if (e.touches.length === 2) {
+      pinching = true; dragging = false;
+      lastDist = touchDist(e.touches);
+    }
+  }, { passive: true });
+
+  svg.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1 && dragging) {
+      vp.x = stx + e.touches[0].clientX - sx;
+      vp.y = sty + e.touches[0].clientY - sy;
+      applyXform();
+    } else if (e.touches.length === 2 && pinching) {
+      const d = touchDist(e.touches);
+      const factor = d / lastDist;
+      vp.scale = Math.max(.15, Math.min(4, vp.scale * factor));
+      lastDist = d;
+      applyXform();
+    }
+  }, { passive: false });
+
+  svg.addEventListener('touchend', () => { dragging = false; pinching = false; });
+}
+
+function touchDist(t) {
+  const dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
+function zoomBy(f) {
+  const wrap = document.getElementById('wrap');
+  const cx = wrap.clientWidth/2, cy = wrap.clientHeight/2;
+  const ns = Math.max(.15, Math.min(4, vp.scale * f));
+  vp.x = cx - (cx - vp.x) * (ns / vp.scale);
+  vp.y = cy - (cy - vp.y) * (ns / vp.scale);
+  vp.scale = ns;
+  applyXform();
+}
+
+function resetView() {
+  vp.initialised = false;
+  render();
+}
+
+// ──────────────────────────────────────────────────────
+// DETAIL MODAL
+// ──────────────────────────────────────────────────────
+function openDetail(id) {
+  const p = data.people.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('detailName').textContent = p.name;
+
+  // Build connections list
+  const conns = [];
+  for (const r of data.relationships) {
+    let oid = null, label = '';
+    if (r.fromId === id) { oid = r.toId; }
+    else if (r.toId === id) { oid = r.fromId; }
+    else continue;
+    const op = data.people.find(x => x.id === oid);
+    if (!op) continue;
+    if (r.type === 'child') {
+      label = r.fromId === id ? `Parent of ${op.name}` : `Child of ${op.name}`;
+    } else if (r.type === 'spouse') {
+      label = `Spouse/Partner of ${op.name}`;
+    } else if (r.type === 'sibling') {
+      label = `Sibling of ${op.name}`;
+    }
+    conns.push(label);
+  }
+
+  let html = `<div class="df"><div class="dl">Role</div><div class="dv">${esc(relLabel(id))}</div></div>`;
+  if (p.birthYear) html += `<div class="df"><div class="dl">Birth Year</div><div class="dv">${p.birthYear}</div></div>`;
+  if (p.email) html += `<div class="df"><div class="dl">Email</div><div class="dv">${esc(p.email)}</div></div>`;
+  if (p.notes) html += `<div class="df"><div class="dl">Notes</div><div class="dv">${esc(p.notes)}</div></div>`;
+  if (conns.length) html += `<div class="df"><div class="dl">Family Connections</div><div class="dv">${conns.map(c=>`<span class="rel-chip">${esc(c)}</span>`).join('')}</div></div>`;
+  if (missingParent(id)) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px"><span style="font-size:16px">⚠️</span><span>Only one parent is recorded. <strong>Link a second parent</strong> by clicking <em>Add Relative → Parent</em> on this person, or use <em>Link Existing</em>.</span></div>`;
+  html += `<div class="df"><div class="dl">Added by</div><div class="dv">${p.addedBy === 'system' ? 'Founding record' : esc(p.addedBy)} · ${fmtDate(p.addedAt)}</div></div>`;
+  if (p.editedBy) html += `<div class="df"><div class="dl">Last edited by</div><div class="dv">${esc(p.editedBy)} · ${fmtDate(p.editedAt)}</div></div>`;
+
+  document.getElementById('detailBody').innerHTML = html;
+
+  const foot = document.getElementById('detailFoot');
+  if (!sess.readOnly) {
+    foot.innerHTML = `
+      <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
+      <button class="btn btn-secondary" onclick="closeDetail();openEdit('${id}')">✏️ Edit</button>
+      <button class="btn btn-primary" onclick="closeDetail();openAdd('${id}')">+ Add Relative</button>`;
+  } else {
+    foot.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="closeDetail()">Close</button>`;
+  }
+
+  document.getElementById('detailOverlay').style.display = 'flex';
+}
+
+function closeDetail() { document.getElementById('detailOverlay').style.display = 'none'; }
+
+// ──────────────────────────────────────────────────────
+// EDIT MODAL
+// ──────────────────────────────────────────────────────
+function openEdit(id) {
+  if (sess.readOnly) { toast('Sign in with a name to edit entries'); return; }
+  const p = data.people.find(x => x.id === id);
+  if (!p) return;
+  ui.editId = id;
+  document.getElementById('editName').value  = p.name;
+  document.getElementById('editEmail').value = p.email || '';
+  document.getElementById('editYear').value  = p.birthYear || '';
+  document.getElementById('editNotes').value = p.notes || '';
+  document.getElementById('editOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('editName').focus(), 80);
+}
+
+function closeEdit() { document.getElementById('editOverlay').style.display = 'none'; }
+
+function commitEdit() {
+  const name = document.getElementById('editName').value.trim();
+  if (!name) { toast('Name cannot be empty'); return; }
+
+  const p = data.people.find(x => x.id === ui.editId);
+  if (!p) return;
+
+  p.name      = name;
+  p.email     = document.getElementById('editEmail').value.trim();
+  p.birthYear = document.getElementById('editYear').value ? parseInt(document.getElementById('editYear').value) : null;
+  p.notes     = document.getElementById('editNotes').value.trim();
+  p.editedBy  = sess.name;
+  p.editedAt  = new Date().toISOString();
+
+  save();
+  closeEdit();
+  render();
+  toast(`✓ ${name} updated`);
+}
+
+// ──────────────────────────────────────────────────────
+// ADD MODAL
+// ──────────────────────────────────────────────────────
+function openAdd(fromId) {
+  if (sess.readOnly) { toast('Sign in with a name to add family members'); return; }
+  ui.addToId = fromId;
+  ui.relType = null;
+  const p = data.people.find(x => x.id === fromId);
+  document.getElementById('addToName').textContent = p ? p.name : '';
+  document.getElementById('newName').value  = '';
+  document.getElementById('newEmail').value = '';
+  document.getElementById('newYear').value  = '';
+  document.getElementById('newNotes').value = '';
+  document.querySelectorAll('.rel-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('addModeFg').style.display      = 'none';
+  document.getElementById('secondParentFg').style.display = 'none';
+  document.getElementById('linkExistingFg').style.display = 'none';
+  document.getElementById('newPersonFields').style.display = 'block';
+  document.getElementById('secondParent').value = '';
+  document.getElementById('linkSelect').innerHTML = '<option value="">— Choose —</option>';
+  ui.addMode = 'new';
+  document.getElementById('addOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('newName').focus(), 80);
+}
+
+function closeAdd() { document.getElementById('addOverlay').style.display = 'none'; }
+
+function pickRel(type, elBtn) {
+  ui.relType = type;
+  document.querySelectorAll('.rel-btn').forEach(b => b.classList.remove('sel'));
+  elBtn.classList.add('sel');
+
+  // Show mode toggle and reset to "new"
+  document.getElementById('addModeFg').style.display = 'block';
+  setAddMode('new');
+}
+
+function setAddMode(mode) {
+  ui.addMode = mode;
+  document.getElementById('modeNewBtn').className  = 'mode-tab ' + (mode==='new'  ? 'mode-tab-on' : 'mode-tab-off');
+  document.getElementById('modeLinkBtn').className = 'mode-tab ' + (mode==='link' ? 'mode-tab-on' : 'mode-tab-off');
+  document.getElementById('newPersonFields').style.display  = mode==='new'  ? 'block' : 'none';
+  document.getElementById('linkExistingFg').style.display   = mode==='link' ? 'block' : 'none';
+
+  if (mode === 'new') {
+    refreshSecondParent();
+  } else {
+    refreshLinkSelect();
+  }
+}
+
+function refreshSecondParent() {
+  const fg  = document.getElementById('secondParentFg');
+  const sel = document.getElementById('secondParent');
+  if (ui.relType !== 'child') { fg.style.display='none'; return; }
+
+  const spouseIds = getSpousesOf(ui.addToId);
+  const others = data.people
+    .filter(p => p.id !== ui.addToId && !spouseIds.includes(p.id))
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  sel.innerHTML = '<option value="">— None —</option>';
+  if (spouseIds.length) {
+    const grp = document.createElement('optgroup'); grp.label = 'Spouse / Partner';
+    for (const id of spouseIds) {
+      const p = data.people.find(x=>x.id===id);
+      if (p) { const o=document.createElement('option'); o.value=id; o.textContent=p.name; grp.appendChild(o); }
+    }
+    sel.appendChild(grp);
+    if (spouseIds.length===1) sel.value = spouseIds[0];
+  }
+  if (others.length) {
+    const grp = document.createElement('optgroup'); grp.label = 'Other family members';
+    for (const p of others) { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; grp.appendChild(o); }
+    sel.appendChild(grp);
+  }
+  fg.style.display = 'block';
+}
+
+function refreshLinkSelect() {
+  const sel = document.getElementById('linkSelect');
+  const t   = ui.relType;
+
+  // People already connected with this rel type to the reference person
+  const alreadyLinked = new Set(
+    data.relationships
+      .filter(r => {
+        if (r.fromId !== ui.addToId && r.toId !== ui.addToId) return false;
+        if (t === 'child')   return r.type === 'child';
+        if (t === 'parent')  return r.type === 'child';
+        if (t === 'sibling') return r.type === 'sibling';
+        if (t === 'spouse')  return r.type === 'spouse';
+        return false;
+      })
+      .map(r => r.fromId === ui.addToId ? r.toId : r.fromId)
+  );
+  alreadyLinked.add(ui.addToId); // exclude self
+
+  // For "child": highlight children of the spouse first
+  const spouseIds = getSpousesOf(ui.addToId);
+  const spouseChildIds = new Set(
+    data.relationships
+      .filter(r => r.type==='child' && spouseIds.includes(r.fromId) && !alreadyLinked.has(r.toId))
+      .map(r => r.toId)
+  );
+
+  const candidates = data.people.filter(p => !alreadyLinked.has(p.id));
+  candidates.sort((a,b) => a.name.localeCompare(b.name));
+
+  sel.innerHTML = '<option value="">— Choose —</option>';
+
+  if (t === 'child' && spouseChildIds.size) {
+    const grp = document.createElement('optgroup');
+    grp.label = "Spouse's children (suggested)";
+    for (const p of candidates.filter(p => spouseChildIds.has(p.id))) {
+      const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; grp.appendChild(o);
+    }
+    sel.appendChild(grp);
+  }
+
+  const rest = candidates.filter(p => !spouseChildIds.has(p.id));
+  if (rest.length) {
+    const grp = document.createElement('optgroup'); grp.label = 'All other members';
+    for (const p of rest) { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; grp.appendChild(o); }
+    sel.appendChild(grp);
+  }
+
+  if (candidates.length === 0) {
+    const o=document.createElement('option'); o.disabled=true; o.textContent='No eligible people found'; sel.appendChild(o);
+  }
+}
+
+function getSpousesOf(id) {
+  return data.relationships
+    .filter(r => r.type==='spouse' && (r.fromId===id || r.toId===id))
+    .map(r => r.fromId===id ? r.toId : r.fromId);
+}
+
+function commitAdd() {
+  if (!ui.relType)  { toast('Please select a relationship type'); return; }
+  if (!ui.addToId)  { toast('No reference person selected'); return; }
+
+  // ── LINK EXISTING MODE ──
+  if (ui.addMode === 'link') {
+    const linkId = document.getElementById('linkSelect').value;
+    if (!linkId) { toast('Please select a person to link'); return; }
+    const linked = data.people.find(x => x.id === linkId);
+    if (!linked) return;
+
+    const t = ui.relType;
+    if (t === 'child')   data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'child' });
+    else if (t === 'parent')  data.relationships.push({ fromId: linkId, toId: ui.addToId, type: 'child' });
+    else if (t === 'sibling') data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'sibling' });
+    else if (t === 'spouse')  data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'spouse' });
+
+    save(); closeAdd(); render();
+    toast(`✓ ${linked.name} linked to the tree!`);
+    return;
+  }
+
+  // ── NEW PERSON MODE ──
+  const name  = document.getElementById('newName').value.trim();
+  const email = document.getElementById('newEmail').value.trim();
+  const yearV = document.getElementById('newYear').value;
+  const notes = document.getElementById('newNotes').value.trim();
+
+  if (!name) { toast('Please enter a full name'); return; }
+
+  // Duplicate check
+  const alreadyLinked = data.relationships
+    .filter(r => r.fromId===ui.addToId || r.toId===ui.addToId)
+    .map(r => r.fromId===ui.addToId ? r.toId : r.fromId);
+  const dup = alreadyLinked.some(oid => {
+    const op = data.people.find(x=>x.id===oid);
+    return op && op.name.toLowerCase()===name.toLowerCase() &&
+      data.relationships.some(r => r.type===ui.relType &&
+        ((r.fromId===ui.addToId&&r.toId===oid)||(r.toId===ui.addToId&&r.fromId===oid)));
+  });
+  if (dup) { toast('This person already has that relationship here'); return; }
+
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now();
+  data.people.push({ id, name, email, birthYear: yearV ? parseInt(yearV) : null,
+    notes, addedBy: sess.name, addedAt: new Date().toISOString() });
+
+  const t = ui.relType;
+  if (t === 'child') {
+    data.relationships.push({ fromId: ui.addToId, toId: id, type: 'child' });
+    const secondParentId = document.getElementById('secondParent').value;
+    if (secondParentId) data.relationships.push({ fromId: secondParentId, toId: id, type: 'child' });
+  } else if (t === 'parent')  { data.relationships.push({ fromId: id, toId: ui.addToId, type: 'child' }); }
+  else if (t === 'sibling')   { data.relationships.push({ fromId: ui.addToId, toId: id, type: 'sibling' }); }
+  else if (t === 'spouse')    { data.relationships.push({ fromId: ui.addToId, toId: id, type: 'spouse' }); }
+
+  sess.added.push(id);
+  save(); closeAdd(); render();
+  toast(`✓ ${name} added to the family tree!`);
+}
+
+// ──────────────────────────────────────────────────────
+// UTILITIES
+// ──────────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }); } catch(_) { return iso; }
+}
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
+}
+
+// ──────────────────────────────────────────────────────
+// KEYBOARD & RESIZE
+// ──────────────────────────────────────────────────────
+document.getElementById('vname').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('vemail').focus(); });
+document.getElementById('vemail').addEventListener('keydown', e => { if(e.key==='Enter') enterApp(false); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeDetail(); closeAdd(); closeEdit(); } });
+window.addEventListener('resize', () => {
+  if (document.getElementById('app').style.display !== 'none') render();
+});
+</script>
+</body>
+</html>
