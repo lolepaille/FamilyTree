@@ -95,6 +95,13 @@ textarea{resize:vertical;min-height:72px}
 .toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1}
 
+/* SAVING */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;flex-shrink:0}
+.spinner-dark{border-color:rgba(107,76,53,.25);border-top-color:var(--mid)}
+#savingBar{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:200;display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+#savingBar.on{opacity:1}
+
 /* EMPTY STATE */
 .empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:var(--mid);font-size:14px;pointer-events:none}
 
@@ -140,6 +147,7 @@ textarea{resize:vertical;min-height:72px}
   </div>
   <div class="tree-wrap" id="wrap">
     <svg id="svg"></svg>
+    <div id="savingBar"><div class="spinner"></div><span id="savingLabel">Saving…</span></div>
     <div class="zoom">
       <button class="zoom-btn" onclick="zoomBy(1.2)" title="Zoom in">+</button>
       <button class="zoom-btn" onclick="zoomBy(0.8)" title="Zoom out">−</button>
@@ -218,7 +226,7 @@ textarea{resize:vertical;min-height:72px}
 
     <div class="modal-foot">
       <button class="btn btn-secondary" onclick="closeAdd()" data-i18n="btnCancel">Cancel</button>
-      <button class="btn btn-primary" onclick="commitAdd()" data-i18n="btnAddToTree">Add to Tree</button>
+      <button class="btn btn-primary" id="btnCommitAdd" onclick="commitAdd()" data-i18n="btnAddToTree">Add to Tree</button>
     </div>
   </div>
 </div>
@@ -245,7 +253,7 @@ textarea{resize:vertical;min-height:72px}
     </div>
     <div class="modal-foot">
       <button class="btn btn-secondary" onclick="closeEdit()" data-i18n="btnCancel">Cancel</button>
-      <button class="btn btn-primary" onclick="commitEdit()" data-i18n="btnSaveChanges">Save Changes</button>
+      <button class="btn btn-primary" id="btnCommitEdit" onclick="commitEdit()" data-i18n="btnSaveChanges">Save Changes</button>
     </div>
   </div>
 </div>
@@ -307,6 +315,7 @@ const T = {
     phName:'e.g. Jane Makoona', phEmail:'jane@example.com',
     phFullName:'Full name', phEmailField:'email@example.com',
     phBirthYear:'e.g. 1985', phNotes:'Any additional notes…',
+    saving:'Saving…',
   },
   fr: {
     landingTitle:'Arbre Généalogique Makoona',
@@ -357,6 +366,7 @@ const T = {
     phName:'ex. Jean Makoona', phEmail:'jean@exemple.com',
     phFullName:'Nom complet', phEmailField:'email@exemple.com',
     phBirthYear:'ex. 1985', phNotes:'Notes supplémentaires…',
+    saving:'Enregistrement…',
   },
 };
 
@@ -433,6 +443,7 @@ async function load() {
       const remote = await res.json();
       if (remote.people && remote.people.length > 0) {
         data = remote;
+        dedupeRelationships();
         return;
       }
     }
@@ -440,6 +451,16 @@ async function load() {
   // First load — seed with default data and push to D1
   data = defaultData();
   await save();
+}
+
+function dedupeRelationships() {
+  const seen = new Set();
+  data.relationships = data.relationships.filter(r => {
+    const key = `${r.type}|${[r.fromId, r.toId].sort().join('|')}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function save() {
@@ -1098,15 +1119,16 @@ function openDetail(id) {
     } else if (r.type === 'sibling') {
       label = t.connSiblingOf(op.name);
     }
-    conns.push(label);
+    if (label) conns.push(label);
   }
+  const uniqueConns = [...new Set(conns)];
 
   const dt = T[lang];
   let html = `<div class="df"><div class="dl">${dt.dlRole}</div><div class="dv">${esc(relLabel(id))}</div></div>`;
   if (p.birthYear) html += `<div class="df"><div class="dl">${dt.dlBirthYear}</div><div class="dv">${p.birthYear}</div></div>`;
   if (p.email) html += `<div class="df"><div class="dl">${dt.dlEmail}</div><div class="dv">${esc(p.email)}</div></div>`;
   if (p.notes) html += `<div class="df"><div class="dl">${dt.dlNotes}</div><div class="dv">${esc(p.notes)}</div></div>`;
-  if (conns.length) html += `<div class="df"><div class="dl">${dt.dlConnections}</div><div class="dv">${conns.map(c=>`<span class="rel-chip">${esc(c)}</span>`).join('')}</div></div>`;
+  if (uniqueConns.length) html += `<div class="df"><div class="dl">${dt.dlConnections}</div><div class="dv">${uniqueConns.map(c=>`<span class="rel-chip">${esc(c)}</span>`).join('')}</div></div>`;
   if (missingParent(id)) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px"><span style="font-size:16px">⚠️</span><span>${dt.missingParentMsg}</span></div>`;
   html += `<div class="df"><div class="dl">${dt.dlAddedBy}</div><div class="dv">${p.addedBy === 'system' ? dt.foundingRecord : esc(p.addedBy)} · ${fmtDate(p.addedAt)}</div></div>`;
   if (p.editedBy) html += `<div class="df"><div class="dl">${dt.dlLastEdited}</div><div class="dv">${esc(p.editedBy)} · ${fmtDate(p.editedAt)}</div></div>`;
@@ -1153,7 +1175,9 @@ async function deletePerson(id) {
   data.relationships = data.relationships.filter(r => r.fromId !== id && r.toId !== id);
   sess.added         = sess.added.filter(x => x !== id);
 
+  setSaving(true);
   await save();
+  setSaving(false);
   render();
   toast(T[lang].toastDeleted);
 }
@@ -1190,7 +1214,9 @@ async function commitEdit() {
   p.editedBy  = sess.name;
   p.editedAt  = new Date().toISOString();
 
+  setSaving(true, 'btnCommitEdit');
   await save();
+  setSaving(false, 'btnCommitEdit');
   closeEdit();
   render();
   toast(T[lang].toastUpdated(name));
@@ -1351,7 +1377,10 @@ async function commitAdd() {
     else if (t === 'sibling') data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'sibling' });
     else if (t === 'spouse')  data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'spouse' });
 
-    await save(); closeAdd(); render();
+    setSaving(true, 'btnCommitAdd');
+    await save();
+    setSaving(false, 'btnCommitAdd');
+    closeAdd(); render();
     toast(T[lang].toastLinked(linked.name));
     return;
   }
@@ -1390,13 +1419,36 @@ async function commitAdd() {
   else if (t === 'spouse')    { data.relationships.push({ fromId: ui.addToId, toId: id, type: 'spouse' }); }
 
   sess.added.push(id);
-  await save(); closeAdd(); render();
+  setSaving(true, 'btnCommitAdd');
+  await save();
+  setSaving(false, 'btnCommitAdd');
+  closeAdd(); render();
   toast(T[lang].toastAdded(name));
 }
 
 // ──────────────────────────────────────────────────────
 // UTILITIES
 // ──────────────────────────────────────────────────────
+// ── Saving state ──
+function setSaving(on, btnId) {
+  const bar = document.getElementById('savingBar');
+  const lbl = document.getElementById('savingLabel');
+  if (lbl) lbl.textContent = T[lang].saving;
+  bar.classList.toggle('on', on);
+  if (btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    if (on) {
+      btn._savedHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span>${T[lang].saving}`;
+    } else {
+      btn.disabled = false;
+      if (btn._savedHTML) { btn.innerHTML = btn._savedHTML; delete btn._savedHTML; }
+    }
+  }
+}
+
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtDate(iso) {
   try { return new Date(iso).toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }); } catch(_) { return iso; }
