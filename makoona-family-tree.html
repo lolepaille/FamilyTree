@@ -292,19 +292,36 @@ let vp   = { x: 0, y: 0, scale: 1, initialised: false };
 let ui   = { relType: null, addToId: null, editId: null, addMode: 'new' };
 
 // ──────────────────────────────────────────────────────
-// STORAGE  (localStorage; falls back to in-memory)
+// STORAGE  — Cloudflare D1 via Worker API
 // ──────────────────────────────────────────────────────
-function load() {
+const API = 'https://family-tree-api.lawrence-165.workers.dev';
+
+async function load() {
   try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) { const p = JSON.parse(raw); if (p.people && p.relationships) { data = p; return; } }
+    const res = await fetch(`${API}/tree`);
+    if (res.ok) {
+      const remote = await res.json();
+      if (remote.people && remote.people.length > 0) {
+        data = remote;
+        return;
+      }
+    }
   } catch(_) {}
+  // First load — seed with default data and push to D1
   data = defaultData();
-  save();
+  await save();
 }
 
-function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(_) { toast('⚠️ Storage unavailable'); }
+async function save() {
+  try {
+    await fetch(`${API}/tree`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch(_) { toast('⚠️ Could not sync to server'); }
+  // Always keep a local cache too
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(_) {}
 }
 
 // ──────────────────────────────────────────────────────
@@ -322,9 +339,9 @@ function enterApp(forceGuest) {
     ? '<span class="badge badge-tan">👁 Guest (read-only)</span>'
     : `<span class="badge badge-green">✓ ${esc(sess.name)}</span>`;
 
-  load();
-  render();
+  render(); // show skeleton immediately
   initPanZoom();
+  load().then(() => render()); // then load from D1 and re-render
 }
 
 // ──────────────────────────────────────────────────────
@@ -992,7 +1009,7 @@ function openEdit(id) {
 
 function closeEdit() { document.getElementById('editOverlay').style.display = 'none'; }
 
-function commitEdit() {
+async function commitEdit() {
   const name = document.getElementById('editName').value.trim();
   if (!name) { toast('Name cannot be empty'); return; }
 
@@ -1006,7 +1023,7 @@ function commitEdit() {
   p.editedBy  = sess.name;
   p.editedAt  = new Date().toISOString();
 
-  save();
+  await save();
   closeEdit();
   render();
   toast(`✓ ${name} updated`);
@@ -1150,7 +1167,7 @@ function getSpousesOf(id) {
     .map(r => r.fromId===id ? r.toId : r.fromId);
 }
 
-function commitAdd() {
+async function commitAdd() {
   if (!ui.relType)  { toast('Please select a relationship type'); return; }
   if (!ui.addToId)  { toast('No reference person selected'); return; }
 
@@ -1167,7 +1184,7 @@ function commitAdd() {
     else if (t === 'sibling') data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'sibling' });
     else if (t === 'spouse')  data.relationships.push({ fromId: ui.addToId, toId: linkId, type: 'spouse' });
 
-    save(); closeAdd(); render();
+    await save(); closeAdd(); render();
     toast(`✓ ${linked.name} linked to the tree!`);
     return;
   }
@@ -1206,7 +1223,7 @@ function commitAdd() {
   else if (t === 'spouse')    { data.relationships.push({ fromId: ui.addToId, toId: id, type: 'spouse' }); }
 
   sess.added.push(id);
-  save(); closeAdd(); render();
+  await save(); closeAdd(); render();
   toast(`✓ ${name} added to the family tree!`);
 }
 
